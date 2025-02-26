@@ -18,5 +18,8 @@
   "homepage": "https://github.com/Idowu-Adeniyi/capstone#readme",
   "dependencies": {
     "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
   }
 }
