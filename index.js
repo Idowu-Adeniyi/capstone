@@ -10,6 +10,9 @@ app.set("views", path.join(__dirname, "templates")); // set the "views" express 
 
 app.set("view engine", "pug"); // set express to use "pug" as the template engine (settinog: "view engine")
 
+// set up the folder path for static files(e.g css, client-side JS, images files)
+app.use(express.static(path.join(__dirname, "public")));
+
 //Page routes
 app.get("/", (request, response) => {
   //   response.status(200).send("Hello");

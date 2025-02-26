@@ -4,11 +4,11 @@ html
     head 
         meta(charset="utf-8")
         title #{title} | Work Hour Tracker 
+        link(rel="stylesheet", href="/css/styles.css")
+        block scripts   
+            script(src="/js/common.js")
     body
-        header#header-container 
-            div.header-content 
-                h2#site-name 
-                    a(href="/about") About page
+        include includes/header.pug
         main#main-content 	
             block layout-content 	
         footer#footer-content 
