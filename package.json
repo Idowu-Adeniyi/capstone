@@ -4,7 +4,7 @@
   "description": "capstone project",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon ./index.js"
   },
   "repository": {
     "type": "git",
@@ -17,7 +17,8 @@
   },
   "homepage": "https://github.com/Idowu-Adeniyi/capstone#readme",
   "dependencies": {
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "pug": "^3.0.3"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"
