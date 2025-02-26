@@ -1,0 +1,16 @@
+doctype html 
+html
+    //- for pug view: you can assign an id like this eg. header(id="header")
+    head 
+        meta(charset="utf-8")
+        title #{title} | Work Hour Tracker 
+    body
+        header#header-container 
+            div.header-content 
+                h2#site-name 
+                    a(href="/about") About page
+        main#main-content 	
+            block layout-content 	
+        footer#footer-content 
+            p &copy; Copyright Work Hour Tracker, 2025.
+
