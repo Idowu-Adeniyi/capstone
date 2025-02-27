@@ -1,5 +1,6 @@
 const express = require("express");
 const path = require("path");
+const { MongoClient } = require("mongodb"); // get mongo class from mongo db
 
 // set up express app
 const app = express(); // create express application
@@ -26,3 +27,5 @@ app.get("/about", (request, response) => {
 app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}`);
 });
+
+//mongodb functions

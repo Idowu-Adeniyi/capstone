@@ -18,6 +18,7 @@
   "homepage": "https://github.com/Idowu-Adeniyi/capstone#readme",
   "dependencies": {
     "express": "^4.21.2",
+    "mongodb": "^6.13.1",
     "pug": "^3.0.3"
   },
   "devDependencies": {
