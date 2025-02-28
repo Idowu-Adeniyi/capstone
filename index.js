@@ -2,7 +2,11 @@ const express = require("express");
 const path = require("path");
 const { MongoClient } = require("mongodb"); // get mongo class from mongo db
 
-// set up express app
+// mongodb client setup
+const dbUrl = "mongodb://localhost:27017/"; //connection string
+const client = new MongoClient(dbUrl); // create a new client by passing in the connection string
+
+// setup express app
 const app = express(); // create express application
 const port = process.env.PORT || "8888"; // set up a port number to run the application from
 
@@ -15,13 +19,17 @@ app.set("view engine", "pug"); // set express to use "pug" as the template engin
 app.use(express.static(path.join(__dirname, "public")));
 
 //Page routes
-app.get("/", (request, response) => {
+// if you want to use an async function in your callback function(see below), you need to also make the call back function async
+app.get("/", async (request, response) => {
   //   response.status(200).send("Hello");
-  response.render("index", { title: "Home" }); // renders /templates/layout.pug
+  let links = await getLinks();
+  //   console.log(links);
+  response.render("index", { title: "Home", menu: links }); // renders /templates/layout.pug
 });
 
-app.get("/about", (request, response) => {
-  response.render("about", { title: "About" });
+app.get("/about", async (request, response) => {
+  let links = await getLinks();
+  response.render("about", { title: "About", menu: links });
 });
 
 app.listen(port, () => {
@@ -29,3 +37,15 @@ app.listen(port, () => {
 });
 
 //mongodb functions
+async function connection() {
+  db = client.db("capstonedb"); // select the database
+  return db; // return database so other code/ functions can use it
+}
+
+async function getLinks() {
+  db = await connection(); // use await because conntion()is asynchronous
+  let results = db.collection("menuLinks").find({}); // find all so no query({})
+  // find() returns an object of type FindCursor, so we need to run
+  // toArray() to convert to a JSON array we can use
+  return await results.toArray(); // return the array of data
+}

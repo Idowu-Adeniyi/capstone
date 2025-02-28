@@ -2,4 +2,10 @@ header#header-container
     div.header-content 
         //-img(src="/images/logo.png")
         h2#site-name 
-            a(href="/about") About page
+            a(href="/") Website
+        nav(aria-label="Main navigation")
+            ul 
+                each link in menu 
+                    //-link (above) is my temporary variable in my foreach loop
+                    li 
+                        a(href=link.path) #{link.name}
