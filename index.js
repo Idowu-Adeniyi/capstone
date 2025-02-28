@@ -18,6 +18,11 @@ app.set("view engine", "pug"); // set express to use "pug" as the template engin
 // set up the folder path for static files(e.g css, client-side JS, images files)
 app.use(express.static(path.join(__dirname, "public")));
 
+// convert urlencoded format (for get/post request) to json
+//urlencoded format is query string format (e.g. parameter1=value1&parameter2=value2)
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json()); // use JSON
+
 //Page routes
 // if you want to use an async function in your callback function(see below), you need to also make the call back function async
 app.get("/", async (request, response) => {
@@ -30,6 +35,31 @@ app.get("/", async (request, response) => {
 app.get("/about", async (request, response) => {
   let links = await getLinks();
   response.render("about", { title: "About", menu: links });
+});
+
+//Admin page paths
+app.get("/admin/menu", async (request, response) => {
+  let links = await getLinks();
+  response.render("menu-list", { title: "Administer menu", menu: links });
+});
+
+app.get("/admin/menu/add", async (request, response) => {
+  let links = await getLinks();
+  response.render("menu-add", { title: "Add menu link", menu: links });
+});
+
+app.post("/admin/menu/add/submit", async (request, response) => {
+  // get data from the form (data will be in request)
+  //POST form: get data from request.body
+  //GET form: get data from request.query
+  //console.log(request.body);
+  let newLink = {
+    weight: parseInt(request.body.weight),
+    path: request.body.path,
+    name: request.body.name,
+  };
+  await addLink(newLink);
+  response.redirect("/admin/menu");
 });
 
 app.listen(port, () => {
@@ -48,4 +78,10 @@ async function getLinks() {
   // find() returns an object of type FindCursor, so we need to run
   // toArray() to convert to a JSON array we can use
   return await results.toArray(); // return the array of data
+}
+
+async function addLink(linkToAdd) {
+  db = await connection();
+  await db.collection("menuLinks").insertOne(linkToAdd);
+  console.log(`Added ${linkToAdd} to menuLinks`);
 }

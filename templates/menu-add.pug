@@ -1,0 +1,18 @@
+extends layout 
+
+block layout-content 
+    h1.page-title Add menu link 
+    //- /admin/menu/add/submit will be the location where the form data is submitted to
+    form(method="post", action="/admin/menu/add/submit")
+        div 
+            label(for="wgt")  Weight:
+            input(type="number", id="wgt", name="weight")
+        div 
+            label(for="href")  URI:
+            input(type="text", id="href", name="path",
+            placeholder="e.g. /my-page-uri")
+        div 
+            label(for="link-name")  link text:
+            input(type="text", id="link-name", name="name",
+            placeholder="e.g. About")
+        button(type="submit") Add link
