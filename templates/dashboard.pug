@@ -1,12 +1,45 @@
+//- doctype html
+//- html
+//-   head
+//-     title= title
+//-   body
+//-     h1 Welcome, #{user.fname} #{user.lname}
+    
+//-     form(action="/clockin", method="POST")
+//-       button(type="submit") Clock In
+
+//-     form(action="/clockout", method="POST")
+//-       button(type="submit") Clock Out
+
+
+
+
+// dashboard.pug
 doctype html
 html
   head
     title= title
   body
-    h1 Welcome, #{user.fname} #{user.lname}
-    
-    form(action="/clockin", method="POST")
-      button(type="submit") Clock In
+    // Reusable Header
+    header
+      .logo 
+        a(href='/') Work Hour Tracker
+      .logout
+        a(href='/login') Logout
 
-    form(action="/clockout", method="POST")
-      button(type="submit") Clock Out
+    // Centralized Main Content
+    .container
+      .content
+        h1 Welcome, #{user.fname} #{user.lname}
+        
+        // Clock In Form
+        form(action="/clockin", method="POST")
+          button(type="submit") Clock In
+
+        // Clock Out Form
+        form(action="/clockout", method="POST")
+          button(type="submit") Clock Out
+
+    // Reusable Footer
+    footer
+      p &copy; 2025 Work Hour Tracker
