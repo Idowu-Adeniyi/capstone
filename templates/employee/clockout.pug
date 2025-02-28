@@ -1,0 +1,8 @@
+extends layout 
+
+block layout-content 
+    div.hero
+        h1 Clock Out
+        p Click the button below to end your shift.
+        form(method="POST", action="/clock-out")
+            button.btn(type="submit") Clock Out

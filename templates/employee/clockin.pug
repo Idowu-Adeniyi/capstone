@@ -1,0 +1,8 @@
+extends layout 
+
+block layout-content 
+    div.hero
+        h1 Clock In
+        p Click the button below to start your shift.
+        form(method="POST", action="/clock-in")
+            button.btn(type="submit") Clock In

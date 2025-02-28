@@ -1,35 +1,43 @@
 const express = require("express");
 const path = require("path");
-const { MongoClient } = require("mongodb"); // get mongo class from mongo db
+const { MongoClient, ObjectId } = require("mongodb"); // Get Mongo class from MongoDB
+const bcrypt = require("bcryptjs"); // bcrypt for hashing passwords
+const session = require("express-session"); // Add session handling
 
-// mongodb client setup
-const dbUrl = "mongodb://localhost:27017/"; //connection string
-const client = new MongoClient(dbUrl); // create a new client by passing in the connection string
+// MongoDB client setup
+const dbUrl = "mongodb://127.0.0.1:27017/"; // MongoDB connection string
+const client = new MongoClient(dbUrl); // Create a new client by passing in the connection string
 
-// setup express app
-const app = express(); // create express application
-const port = process.env.PORT || "8888"; // set up a port number to run the application from
+// Setup express app
+const app = express(); // Create express application
+const port = process.env.PORT || "8888"; // Set up a port number to run the application from
 
-//set up express app to use pug as template engine
-app.set("views", path.join(__dirname, "templates")); // set the "views" express setting to the path to the folder containing the template files.
+// Set up express app to use pug as template engine
+app.set("views", path.join(__dirname, "templates")); // Set the "views" express setting to the path to the folder containing the template files.
+app.set("view engine", "pug"); // Set express to use "pug" as the template engine
 
-app.set("view engine", "pug"); // set express to use "pug" as the template engine (settinog: "view engine")
-
-// set up the folder path for static files(e.g css, client-side JS, images files)
+// Set up the folder path for static files (e.g., CSS, client-side JS, image files)
 app.use(express.static(path.join(__dirname, "public")));
 
-// convert urlencoded format (for get/post request) to json
-//urlencoded format is query string format (e.g. parameter1=value1&parameter2=value2)
+// Convert urlencoded format (for get/post request) to JSON
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json()); // use JSON
+app.use(express.json()); // Use JSON
 
-//Page routes
-// if you want to use an async function in your callback function(see below), you need to also make the call back function async
+app.use("/node_modules", express.static("node_modules"));
+
+// Setup session handling
+app.use(
+  session({
+    secret: "your-secret-key", // Secret key to sign the session ID
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+
+// Page routes
 app.get("/", async (request, response) => {
-  //   response.status(200).send("Hello");
   let links = await getLinks();
-  //   console.log(links);
-  response.render("index", { title: "Home", menu: links }); // renders /templates/layout.pug
+  response.render("index", { title: "Home", menu: links });
 });
 
 app.get("/about", async (request, response) => {
@@ -37,51 +45,137 @@ app.get("/about", async (request, response) => {
   response.render("about", { title: "About", menu: links });
 });
 
-//Admin page paths
-app.get("/admin/menu", async (request, response) => {
-  let links = await getLinks();
-  response.render("menu-list", { title: "Administer menu", menu: links });
+// Register and Login Routes
+app.get("/login", (request, response) => {
+  response.render("auth/login", { title: "Login" });
 });
 
-app.get("/admin/menu/add", async (request, response) => {
-  let links = await getLinks();
-  response.render("menu-add", { title: "Add menu link", menu: links });
+app.get("/register", (request, response) => {
+  response.render("auth/register", { title: "Register" });
 });
 
-app.post("/admin/menu/add/submit", async (request, response) => {
-  // get data from the form (data will be in request)
-  //POST form: get data from request.body
-  //GET form: get data from request.query
-  //console.log(request.body);
-  let newLink = {
-    weight: parseInt(request.body.weight),
-    path: request.body.path,
-    name: request.body.name,
+app.get("/dashboard", (request, response) => {
+  // Check if the user is logged in
+  if (!request.session.user) {
+    return response.redirect("/login"); // Redirect to login if not logged in
+  }
+
+  response.render("dashboard", {
+    title: "Dashboard",
+    user: request.session.user,
+  });
+});
+
+// Handle POST for Registration
+app.post("/register", async (request, response) => {
+  const { fname, lname, employee_id, password } = request.body;
+
+  // Check if fields are not empty
+  if (!fname || !lname || !employee_id || !password) {
+    return response.send("All fields are required");
+  }
+
+  // Hash the password before saving
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  // Save user to the database
+  const db = await connection();
+  const userExists = await db
+    .collection("users")
+    .findOne({ employee_id: employee_id });
+
+  if (userExists) {
+    return response.send("Employee ID already exists");
+  }
+
+  // Create a new user object
+  let newUser = {
+    fname,
+    lname,
+    employee_id,
+    password: hashedPassword,
   };
-  await addLink(newLink);
-  response.redirect("/admin/menu");
+
+  try {
+    // Insert the user into the database
+    await db.collection("users").insertOne(newUser);
+    console.log("New user added:", newUser); // Log successful insertion
+    response.redirect("/login"); // Redirect to login after successful registration
+  } catch (err) {
+    console.error("Error during registration:", err); // Log error
+    response.send("There was an error during registration."); // Send error message
+  }
 });
 
-app.listen(port, () => {
-  console.log(`Listening at http://localhost:${port}`);
+// Handle POST for Login
+app.post("/login", async (request, response) => {
+  const { employee_id, password } = request.body;
+
+  if (!employee_id || !password) {
+    return response.send("Employee ID and Password are required");
+  }
+
+  const db = await connection();
+  const user = await db
+    .collection("users")
+    .findOne({ employee_id: employee_id });
+
+  if (!user) {
+    return response.send("Invalid Employee ID or Password");
+  }
+
+  const isPasswordCorrect = await bcrypt.compare(password, user.password);
+
+  if (!isPasswordCorrect) {
+    return response.send("Invalid Employee ID or Password");
+  }
+
+  // Store user info in session on successful login
+  request.session.user = {
+    employee_id: user.employee_id,
+    fname: user.fname,
+    lname: user.lname,
+  };
+
+  // Redirect to dashboard after successful login
+  response.redirect("/dashboard");
 });
 
-//mongodb functions
+// MongoDB connection function
 async function connection() {
-  db = client.db("capstonedb"); // select the database
-  return db; // return database so other code/ functions can use it
+  try {
+    // Always connect to the client if not already connected
+    await client.connect(); // Ensure the client is connected
+    return client.db("capstonedb"); // Return the "capstonedb" database
+  } catch (error) {
+    console.error("MongoDB connection error:", error); // Log connection errors
+    throw new Error("Unable to connect to the database.");
+  }
 }
 
+// Get links from MongoDB
 async function getLinks() {
-  db = await connection(); // use await because conntion()is asynchronous
-  let results = db.collection("menuLinks").find({}); // find all so no query({})
-  // find() returns an object of type FindCursor, so we need to run
-  // toArray() to convert to a JSON array we can use
-  return await results.toArray(); // return the array of data
+  const db = await connection();
+  let results = db.collection("menuLinks").find({});
+  return await results.toArray(); // Return the array of data
 }
 
+// Add link to the menuLinks collection
 async function addLink(linkToAdd) {
-  db = await connection();
+  const db = await connection();
   await db.collection("menuLinks").insertOne(linkToAdd);
   console.log(`Added ${linkToAdd} to menuLinks`);
 }
+
+// Delete link from the menuLinks collection
+async function deleteLink(id) {
+  const db = await connection();
+  let filter = { _id: new ObjectId(id) };
+  let result = await db.collection("menuLinks").deleteOne(filter);
+  if (result.deletedCount === 1) console.log("Link successfully deleted");
+}
+
+// Start the server
+app.listen(port, () => {
+  console.log(`Listening at http://localhost:${port}`);
+});

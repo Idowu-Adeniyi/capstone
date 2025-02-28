@@ -1,11 +1,10 @@
-header#header-container 
-    div.header-content 
-        //-img(src="/images/logo.png")
-        h2#site-name 
-            a(href="/") Website
-        nav(aria-label="Main navigation")
-            ul 
-                each link in menu 
-                    //-link (above) is my temporary variable in my foreach loop
-                    li 
-                        a(href=link.path) #{link.name}
+nav.navbar.navbar-expand-lg.navbar-light.bg-light
+  a.navbar-brand(href="/") Work Hour Tracker
+  button.navbar-toggler(type="button", data-toggle="collapse", data-target="#navbarNav", aria-controls="navbarNav", aria-expanded="false", aria-label="Toggle navigation")
+    span.navbar-toggler-icon
+  div.collapse.navbar-collapse(id="navbarNav")
+    ul.navbar-nav.ml-auto
+      li.nav-item
+        a.nav-link(href="/login") Login
+      li.nav-item
+        a.nav-link(href="/register") Register

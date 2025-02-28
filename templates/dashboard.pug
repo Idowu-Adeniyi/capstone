@@ -1,0 +1,12 @@
+doctype html
+html
+  head
+    title= title
+  body
+    h1 Welcome, #{user.fname} #{user.lname}
+    
+    form(action="/clockin", method="POST")
+      button(type="submit") Clock In
+
+    form(action="/clockout", method="POST")
+      button(type="submit") Clock Out

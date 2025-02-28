@@ -1,8 +1,14 @@
 extends layout
 
-block append scripts 
-	script(src="/js/home.js")
-
-block layout-content 
-	h1 Hello world! 
-	p This is my homepage 
+block layout-content
+  div.container
+    div.row.justify-content-center
+      div.col-md-6.text-center
+        h1 Welcome to Work Hour Tracker
+        p Track your shifts easily with our simple clock-in system.
+        if userLoggedIn
+          div.clock-buttons
+            a.btn.btn-success(href="/clock-in") Clock In
+            a.btn.btn-danger(href="/clock-out") Clock Out
+        else
+          p Please log in to clock in and clock out.

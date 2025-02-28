@@ -1,4 +1,54 @@
 body {
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
-  color: green;
+  background-color: #f7f7f7;
+}
+
+footer {
+  background-color: #f8f9fa;
+  padding: 20px 0;
+}
+
+.card {
+  margin-top: 50px;
+}
+
+.card-body {
+  padding: 30px;
+}
+
+.navbar {
+  margin-bottom: 20px;
+}
+
+.navbar .navbar-nav .nav-link {
+  font-weight: bold;
+  color: #007bff !important;
+}
+
+.navbar .navbar-nav .nav-link:hover {
+  color: #0056b3 !important;
+}
+
+/* Add this to your styles.css for more polish */
+body {
+  font-family: Arial, sans-serif;
+}
+
+.container {
+  margin-top: 50px;
+}
+
+h1 {
+  font-size: 2.5em;
+  color: #333;
+}
+
+p {
+  font-size: 1.2em;
+  color: #666;
+}
+
+.clock-buttons a {
+  margin: 10px;
+  font-size: 1.2em;
+  text-decoration: none;
 }

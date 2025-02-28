@@ -1,0 +1,17 @@
+extends ../layout
+
+block layout-content
+  div.container
+    div.row.justify-content-center
+      div.col-md-6
+        div.card
+          div.card-body
+            h2.card-title.text-center Login
+            form(method="POST", action="/login")
+              div.form-group
+                label(for="employee_id") Employee ID:
+                input(type="text", id="employee_id", name="employee_id", class="form-control", required)
+              div.form-group
+                label(for="password") Password:
+                input(type="password", id="password", name="password", class="form-control", required)
+              button.btn.btn-primary.btn-block(type="submit") Login
