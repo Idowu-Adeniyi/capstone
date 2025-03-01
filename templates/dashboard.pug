@@ -1,45 +1,54 @@
-//- doctype html
-//- html
-//-   head
-//-     title= title
-//-   body
-//-     h1 Welcome, #{user.fname} #{user.lname}
-    
-//-     form(action="/clockin", method="POST")
-//-       button(type="submit") Clock In
-
-//-     form(action="/clockout", method="POST")
-//-       button(type="submit") Clock Out
-
-
-
-
-// dashboard.pug
 doctype html
 html
   head
     title= title
+    link(rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css")
+    script(src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js")
+    script(src="/scripts/historyToggle.js" defer)
+
+  
   body
-    // Reusable Header
-    header
-      .logo 
-        a(href='/') Work Hour Tracker
-      .logout
-        a(href='/login') Logout
+    // Navbar
+    nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
+      .container-fluid
+        a.navbar-brand(href="/") TimeTracker
+        button.navbar-toggler(type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav")
+          span.navbar-toggler-icon
+        #navbarNav.collapse.navbar-collapse
+          ul.navbar-nav.ms-auto
+            li.nav-item
+              a.nav-link(href="/logout") Logout
 
-    // Centralized Main Content
-    .container
-      .content
-        h1 Welcome, #{user.fname} #{user.lname}
-        
-        // Clock In Form
-        form(action="/clockin", method="POST")
-          button(type="submit") Clock In
+    // Main Container
+    .container.mt-4
+      h1 Welcome, #{user.fname} #{user.lname}!
+      h3 Current Status: #{clockStatus}
 
-        // Clock Out Form
-        form(action="/clockout", method="POST")
-          button(type="submit") Clock Out
+      // Clock In/Out Buttons
+      if clockStatus.includes("Not clocked in yet.") || clockStatus.includes("❌ Clocked Out")
+        form(method="post" action="/clockin")
+          button.btn.btn-success(type="submit") ✅ Clock In
+      else
+        form(method="post" action="/clockout")
+          button.btn.btn-danger(type="submit") ❌ Clock Out
+      
+      // Show Log History Button
+      button#showHistoryBtn.btn.btn-info(type="button") Show Log History
 
-    // Reusable Footer
-    footer
-      p &copy; 2025 Work Hour Tracker
+    // Hidden Log History Section
+    #logHistorySection(style="display: none;")
+      h4 Log History:
+      table.table.table-bordered
+        thead
+          tr
+            th Action
+            th Timestamp
+            th Clock In Time
+            th Clock Out Time
+        tbody
+          each log in logHistory
+            tr
+              td #{log.action}
+              td #{log.timestamp.toLocaleString()}
+              td #{log.clockInTime ? log.clockInTime.toLocaleString() : 'N/A'}
+              td #{log.clockOutTime ? log.clockOutTime.toLocaleString() : 'N/A'}
