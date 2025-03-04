@@ -59,11 +59,20 @@ app.get("/dashboard", async (request, response) => {
     .limit(1)
     .toArray();
 
-  // Get log history for display
+  //Get log history for display
+  // const logHistory = await db
+  //   .collection("work_hours")
+  //   .find({ employee_id: userId })
+  //   .sort({ clockIn: -1 })
+  //   .toArray();
+
+  // console.log(logHistory);
+
+  // log history
   const logHistory = await db
-    .collection("work_hours")
+    .collection("log_history") // Ensure it's fetching from log_history, not work_hours
     .find({ employee_id: userId })
-    .sort({ clockIn: -1 })
+    .sort({ timestamp: -1 }) // Sort by latest first
     .toArray();
 
   let clockStatus = "Not clocked in yet.";
