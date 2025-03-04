@@ -59,16 +59,7 @@ app.get("/dashboard", async (request, response) => {
     .limit(1)
     .toArray();
 
-  //Get log history for display
-  // const logHistory = await db
-  //   .collection("work_hours")
-  //   .find({ employee_id: userId })
-  //   .sort({ clockIn: -1 })
-  //   .toArray();
-
-  // console.log(logHistory);
-
-  // log history
+  //log history
   const logHistory = await db
     .collection("log_history") // Ensure it's fetching from log_history, not work_hours
     .find({ employee_id: userId })
@@ -95,19 +86,24 @@ app.get("/dashboard", async (request, response) => {
     }
   }
 
-  // Format log history
-  const formattedLogHistory = logHistory.map((log) => ({
-    action: log.clockOut ? "Clocked Out" : "Clocked In",
-    clockInTime: log.clockIn
-      ? new Date(log.clockIn).toLocaleTimeString()
-      : "N/A",
-    clockOutTime: log.clockOut
-      ? new Date(log.clockOut).toLocaleTimeString()
-      : "N/A",
-    workedDuration: log.clockOut
-      ? formatDuration(new Date(log.clockOut) - new Date(log.clockIn))
-      : "N/A",
-  }));
+  const formattedLogHistory = logHistory.map((log) => {
+    // Ensure that clockIn and clockOut are valid date objects
+    const clockInTime = log.clockInTime ? new Date(log.clockInTime) : null;
+    const clockOutTime = log.clockOutTime ? new Date(log.clockOutTime) : null;
+
+    // Format worked duration only if both clockIn and clockOut are available
+    const workedDuration =
+      clockInTime && clockOutTime
+        ? formatDuration(clockOutTime - clockInTime)
+        : "N/A"; // If no clockOut, show N/A
+
+    return {
+      action: log.action,
+      clockInTime: clockInTime ? clockInTime.toLocaleTimeString() : "N/A",
+      clockOutTime: clockOutTime ? clockOutTime.toLocaleTimeString() : "N/A",
+      workedDuration: workedDuration,
+    };
+  });
 
   response.render("dashboard", {
     title: "Dashboard",
