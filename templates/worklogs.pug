@@ -44,14 +44,27 @@ html
         var filterDate = document.getElementById('dateFilter').value;
         var rows = document.querySelectorAll('#logTableBody tr');
         
-        rows.forEach(row => {
-          var dateClockIn = row.cells[2].innerText;
-          var dateClockOut = row.cells[4].innerText;
+        // If no date is selected, show all logs
+        if (!filterDate) {
+          rows.forEach(row => row.style.display = '');
+          return;
+        }
 
-          if (!filterDate || dateClockIn === filterDate || dateClockOut === filterDate) {
-            row.style.display = '';
+        rows.forEach(row => {
+          // Get the text from dateClockIn and dateClockOut columns
+          var dateClockIn = row.cells[2].innerText;  // Date of Clock In (from table)
+          var dateClockOut = row.cells[4].innerText; // Date of Clock Out (from table)
+
+          // Convert both dates to 'YYYY-MM-DD' format for comparison
+          var dateClockInFormatted = new Date(dateClockIn).toISOString().split('T')[0];
+          var dateClockOutFormatted = new Date(dateClockOut).toISOString().split('T')[0];
+          
+          // Compare the dates
+          if (dateClockInFormatted === filterDate || dateClockOutFormatted === filterDate) {
+            row.style.display = '';  // Show this row if dates match
           } else {
-            row.style.display = 'none';
+            row.style.display = 'none';  // Hide this row if dates don't match
           }
         });
       }
+    script
