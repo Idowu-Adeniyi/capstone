@@ -3,6 +3,10 @@ const path = require("path");
 const { MongoClient, ObjectId } = require("mongodb");
 const bcrypt = require("bcryptjs");
 const session = require("express-session");
+const multer = require("multer");
+const fs = require("fs");
+const router = express.Router();
+const userModel = require("./models/userModel");
 
 const dbUrl = "mongodb://127.0.0.1:27017/";
 const client = new MongoClient(dbUrl);
@@ -86,6 +90,39 @@ app.get("/worklogs", async (request, response) => {
   });
 });
 
+// profile
+
+app.get("/profile", async (request, response) => {
+  if (!request.session.user) {
+    // If no user in session, redirect to login
+    return response.redirect("/login");
+  }
+
+  // Extracting user credentials from session
+  const { employee_id } = request.session.user;
+
+  try {
+    // Fetching user data from database based on employee_id
+    const db = await connection();
+    const user = await db.collection("users").findOne({ employee_id });
+
+    // If no user is found, return a 404 error
+    if (!user) {
+      return response.status(404).send("User not found");
+    }
+
+    // If user found, render profile page and pass the user data
+    return response.render("profile", {
+      title: "Profile",
+      user: user, // Passing user data to profile.pug
+    });
+  } catch (err) {
+    // If there's an error, log it and return a 500 error
+    console.error("Error fetching user data:", err);
+    return response.status(500).send("Error fetching user data");
+  }
+});
+
 // dashboard
 app.get("/dashboard", async (request, response) => {
   if (!request.session.user) return response.redirect("/login");
@@ -158,77 +195,6 @@ app.get("/dashboard", async (request, response) => {
     logHistory: formattedLogHistory,
   });
 });
-
-// app.get("/dashboard", async (request, response) => {
-//   if (!request.session.user) return response.redirect("/login");
-
-//   const db = await connection();
-//   const userId = request.session.user.employee_id;
-
-//   // Get the most recent clock-in/clock-out entry
-//   const latestEntry = await db
-//     .collection("work_hours")
-//     .find({ employee_id: userId })
-//     .sort({ clockIn: -1 })
-//     .limit(1)
-//     .toArray();
-
-//   // Log history
-//   const logHistory = await db
-//     .collection("log_history")
-//     .find({ employee_id: userId })
-//     .sort({ timestamp: -1 })
-//     .toArray();
-
-//   let clockStatus = "Not clocked in yet.";
-//   let workedHours = "N/A";
-//   let isClockedIn = false;
-//   let clockInTime = null;
-
-//   if (latestEntry.length > 0) {
-//     const entry = latestEntry[0];
-//     clockInTime = new Date(entry.clockIn);
-//     const clockOutTime = entry.clockOut ? new Date(entry.clockOut) : null;
-
-//     if (!clockOutTime) {
-//       isClockedIn = true;
-//       clockStatus = `✅ Currently Clocked In at: ${clockInTime.toLocaleTimeString()}`;
-//     } else {
-//       const durationMs = clockOutTime - clockInTime;
-//       workedHours = formatDuration(durationMs);
-//       clockStatus = `❌ Clocked Out at: ${clockOutTime.toLocaleTimeString()} (Worked: ${workedHours})`;
-//     }
-//   }
-
-//   const formattedLogHistory = logHistory.map((log) => {
-//     const clockInTime = log.clockInTime ? new Date(log.clockInTime) : null;
-//     const clockOutTime = log.clockOutTime ? new Date(log.clockOutTime) : null;
-
-//     const workedDuration =
-//       clockInTime && clockOutTime
-//         ? formatDuration(clockOutTime - clockInTime)
-//         : "N/A";
-
-//     return {
-//       action: log.action,
-//       clockInTime: clockInTime ? clockInTime.toLocaleTimeString() : "N/A",
-//       dateClockIn: clockInTime ? clockInTime.toLocaleDateString() : "N/A", // ✅ Added
-//       clockOutTime: clockOutTime ? clockOutTime.toLocaleTimeString() : "N/A",
-//       dateClockOut: clockOutTime ? clockOutTime.toLocaleDateString() : "N/A", // ✅ Added
-//       workedDuration: workedDuration,
-//     };
-//   });
-
-//   response.render("dashboard", {
-//     title: "Dashboard",
-//     user: request.session.user,
-//     clockStatus,
-//     workedHours,
-//     isClockedIn,
-//     clockInTime: isClockedIn ? clockInTime.getTime() : null,
-//     logHistory: formattedLogHistory,
-//   });
-// });
 
 // Function to format time duration (HH:MM:SS)
 function formatDuration(ms) {

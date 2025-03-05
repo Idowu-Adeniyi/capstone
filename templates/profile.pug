@@ -1,0 +1,58 @@
+
+doctype html
+html
+  head
+    title #{title}
+    link(rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css")
+    link(rel="stylesheet" href="/styles.css")
+
+  body
+    // Include Header (Ensure header is present in the includes folder)
+    include includes/header.pug 
+
+    .container.mt-5
+      h1 Profile
+
+      // Profile Section
+      .row
+        .col-md-6.offset-md-3
+          .text-center
+            // Avatar Image Section (50% radius for round shape)
+            img(src="/images/myphoto.jpeg" alt="Profile Picture" class="rounded-circle" width="150" height="150")
+
+            // User Information Section
+            .mt-4
+              h3  #{user.fname}  #{user.lname}  
+              p Employee ID: #{user.employee_id}   
+
+              // Edit Profile Button (We'll implement this functionality later)
+              form(action="/profile/edit" method="GET")
+                button.btn.btn-warning.mt-(type="submit") Edit Profile   
+
+          // Change Password Section
+          .mt-5
+            h2 Change Password
+            form(action="/profile/change-password" method="POST")
+              .mb-3
+                label(for="currentPassword") Current Password:
+                input.form-control(type="password" id="currentPassword" name="currentPassword" required)
+
+              .mb-3
+                label(for="newPassword") New Password:
+                input.form-control(type="password" id="newPassword" name="newPassword" required minlength="4" placeholder="Enter new password (min. 4 characters)")
+
+              .mb-3
+                label(for="confirmPassword") Confirm New Password:
+                input.form-control(type="password" id="confirmPassword" name="confirmPassword" required minlength="4" placeholder="Confirm new password")
+              button.btn.btn-danger.mt-4(type="submit") Update Password  
+
+          // Added extra space to prevent content overlap with the footer
+          .mt-5
+
+    // Include Footer
+    include includes/footer.pug
+
+
+
+
+
