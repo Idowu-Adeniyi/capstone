@@ -1,0 +1,57 @@
+doctype html
+html
+  head
+    title= title
+    link(rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css")
+    script(src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js")
+    script(src="/js/filterLogs.js" defer) // ✅ JavaScript for filtering logs by date
+
+  body
+    .container.mt-4
+      h1 Work Logs for #{userName}
+
+      // Date Filter
+      label(for="dateFilter") Search by Date:
+      input#dateFilter.form-control(type="date" oninput="filterLogs()")
+
+      // Work Logs Table
+      table.table.table-bordered.mt-3
+        thead
+          tr
+            th Action
+            th Clock In Time
+            th Date Clock In
+            th Clock Out Time
+            th Date Clock Out
+            th Worked Hours
+        tbody#logTableBody
+          each log in logHistory
+            tr
+              td #{log.action}
+              td #{log.clockInTime}
+              td #{log.dateClockIn}
+              td #{log.clockOutTime}
+              td #{log.dateClockOut}
+              td #{log.workedDuration}
+          else 
+            p No log history available
+
+      // Back Button
+      a.btn.btn-secondary.mt-3(href="/dashboard") Back to Dashboard
+
+    script.
+      function filterLogs() {
+        var filterDate = document.getElementById('dateFilter').value;
+        var rows = document.querySelectorAll('#logTableBody tr');
+        
+        rows.forEach(row => {
+          var dateClockIn = row.cells[2].innerText;
+          var dateClockOut = row.cells[4].innerText;
+
+          if (!filterDate || dateClockIn === filterDate || dateClockOut === filterDate) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      }
