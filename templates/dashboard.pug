@@ -1,177 +1,3 @@
-//- doctype html
-//- html
-//-   head
-//-     title= title
-//-     link(rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css")
-//-     script(src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js")
-//-     script(src="/scripts/historyToggle.js" defer)
-
-  
-//-   body
-//-     // Navbar
-//-     nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
-//-       .container-fluid
-//-         a.navbar-brand(href="/") TimeTracker
-//-         button.navbar-toggler(type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav")
-//-           span.navbar-toggler-icon
-//-         #navbarNav.collapse.navbar-collapse
-//-           ul.navbar-nav.ms-auto
-//-             li.nav-item
-//-               a.nav-link(href="/logout") Logout
-
-//-     // Main Container
-//-     .container.mt-4
-//-       h1 Welcome, #{user.fname} #{user.lname}!
-//-       h3 Current Status: #{clockStatus}
-
-//-       // Clock In/Out Buttons
-//-       if clockStatus.includes("Not clocked in yet.") || clockStatus.includes("❌ Clocked Out")
-//-         form(method="post" action="/clockin")
-//-           button.btn.btn-success(type="submit") ✅ Clock In
-//-       else
-//-         form(method="post" action="/clockout")
-//-           button.btn.btn-danger(type="submit") ❌ Clock Out
-      
-//-       // Show Log History Button
-//-       button#showHistoryBtn.btn.btn-info(type="button") Show Log History
-
-//-     // Hidden Log History Section
-//-     #logHistorySection(style="display: none;")
-//-       h4 Log History:
-//-       table.table.table-bordered
-//-         thead
-//-           tr
-//-             th Action
-//-             th Timestamp
-//-             th Clock In Time
-//-             th Clock Out Time
-//-         tbody
-//-           each log in logHistory
-//-             tr
-//-               td #{log.action}
-//-               td #{log.timestamp.toLocaleString()}
-//-               td #{log.clockInTime ? log.clockInTime.toLocaleString() : 'N/A'}
-//-               td #{log.clockOutTime ? log.clockOutTime.toLocaleString() : 'N/A'}
-
-
-
-//- doctype html
-//- html
-//-   head
-//-     title= title
-//-     link(rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css")
-//-     script(src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js")
-//-     script(src="/js/liveTimer.js" defer) // Include JavaScript for live timer
-
-//-   body
-//-     .container.mt-4
-//-       h1 Welcome, #{user.fname} #{user.lname}!
-//-       h3 Current Status: #{clockStatus}
-      
-
-//-       if isClockedIn
-//-         h4 Time Elapsed: 
-//-           span#timerDisplay 0h 0m 0s
-
-//-       if clockStatus.includes("Not clocked in yet.") || clockStatus.includes("❌ Clocked Out")
-//-         form(method="post" action="/clockin")
-//-           button.btn.btn-success(type="submit") ✅ Clock In
-//-       else
-//-         form(method="post" action="/clockout")
-//-           button.btn.btn-danger(type="submit") ❌ Clock Out
-
-//-       // Log History Table
-//-       h4 Log History:
-//-       table.table.table-bordered
-//-         thead
-//-           tr
-//-             th Action
-//-             th Clock In Time
-//-             th Clock Out Time
-//-             th Worked Hours
-            
-//-         tbody
-//-           each log in logHistory
-//-             tr
-//-               td #{log.action}
-//-               td #{log.clockInTime}
-//-               td #{log.clockOutTime}
-//-               td #{log.workedDuration}
-//-           else 
-//-             p No log history available
-
-//-     script.
-//-       var clockInTime = !{JSON.stringify(clockInTime)};
-
-
-
-
-
-//- doctype html
-//- html
-//-   head
-//-     title= title
-//-     link(rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css")
-//-     script(src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js")
-//-     script(src="/js/liveTimer.js" defer) // Include JavaScript for live timer
-
-//-   body
-//-     // Navbar
-//-     nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
-//-       .container-fluid
-//-         a.navbar-brand(href="/") TimeTracker
-//-         button.navbar-toggler(type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav")
-//-           span.navbar-toggler-icon
-//-         #navbarNav.collapse.navbar-collapse
-//-           ul.navbar-nav.ms-auto
-//-             li.nav-item
-//-               a.nav-link(href="/logout") Logout
-
-//-     .container.mt-4
-//-       h1 Welcome, #{user.fname} #{user.lname}!
-//-       h3 Current Status: #{clockStatus}
-      
-//-       if isClockedIn
-//-         h4 Time Elapsed: 
-//-           span#timerDisplay 0h 0m 0s
-
-//-       if clockStatus.includes("Not clocked in yet.") || clockStatus.includes("❌ Clocked Out")
-//-         form(method="post" action="/clockin")
-//-           button.btn.btn-success(type="submit") ✅ Clock In
-//-       else
-//-         form(method="post" action="/clockout")
-//-           button.btn.btn-danger(type="submit") ❌ Clock Out
-
-//-       // Log History Table
-//-       h4 Log History:
-//-       table.table.table-bordered
-//-         thead
-//-           tr
-//-             th Action
-//-             th Clock In Time
-//-             th Clock Out Time
-//-             th Worked Hours
-            
-//-         tbody
-//-           each log in logHistory
-//-             tr
-//-               td #{log.action}
-//-               td #{log.clockInTime ? log.clockInTime.toLocaleString() : 'N/A'}
-//-               td #{log.clockOutTime ? log.clockOutTime.toLocaleString() : 'N/A'}
-//-               td #{log.workedDuration ? log.workedDuration : 'N/A'}
-//-           else 
-//-             p No log history available
-
-//-     // Footer (optional)
-//-     footer.bg-dark.text-white.text-center.p-3
-//-       p &copy; 2025 TimeTracker. All rights reserved.
-
-//-     script.
-//-       var clockInTime = !{JSON.stringify(clockInTime)}
-
-
-
-
 doctype html
 html
   head
@@ -186,7 +12,6 @@ html
         display: flex;
         flex-direction: column;
       }
-
       /* Push footer to the bottom */
       .main-content {
         flex-grow: 1;
@@ -197,16 +22,28 @@ html
     nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
       .container-fluid
         a.navbar-brand(href="/") TimeTracker
+
         button.navbar-toggler(type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav")
           span.navbar-toggler-icon
+
         #navbarNav.collapse.navbar-collapse
           ul.navbar-nav.ms-auto
+            li.nav-item
+              a.nav-link(href="/") Home
+            li.nav-item
+              a.nav-link(href="/profile") Profile
+            li.nav-item
+              a.nav-link(href="/worklogs") Worklogs
+            li.nav-item
+              a.nav-link(href="/reports") Reports
             li.nav-item
               a.nav-link(href="/logout") Logout
 
     .main-content.container.mt-4
       h1 Welcome, #{user.fname} #{user.lname}!
       h3 Current Status: #{clockStatus}
+      h4 Current Date: 
+        span#currentDate #{new Date().toLocaleDateString()}
 
       if isClockedIn
         h4 Time Elapsed: 
@@ -226,14 +63,18 @@ html
           tr
             th Action
             th Clock In Time
+            th Date Clock In
             th Clock Out Time
+            th Date Clock Out
             th Worked Hours
         tbody
           each log in logHistory
             tr
               td #{log.action}
               td #{log.clockInTime}
+              td #{log.dateClockIn}
               td #{log.clockOutTime}
+              td #{log.dateClockOut}
               td #{log.workedDuration}
           else 
             p No log history available
@@ -243,6 +84,3 @@ html
       p &copy; 2025 TimeTracker. All rights reserved.
     script.
       var clockInTime = !{JSON.stringify(clockInTime)}
-
-
-

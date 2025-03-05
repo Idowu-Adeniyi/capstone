@@ -59,11 +59,11 @@ app.get("/dashboard", async (request, response) => {
     .limit(1)
     .toArray();
 
-  //log history
+  // Log history
   const logHistory = await db
-    .collection("log_history") // Ensure it's fetching from log_history, not work_hours
+    .collection("log_history")
     .find({ employee_id: userId })
-    .sort({ timestamp: -1 }) // Sort by latest first
+    .sort({ timestamp: -1 })
     .toArray();
 
   let clockStatus = "Not clocked in yet.";
@@ -87,20 +87,20 @@ app.get("/dashboard", async (request, response) => {
   }
 
   const formattedLogHistory = logHistory.map((log) => {
-    // Ensure that clockIn and clockOut are valid date objects
     const clockInTime = log.clockInTime ? new Date(log.clockInTime) : null;
     const clockOutTime = log.clockOutTime ? new Date(log.clockOutTime) : null;
 
-    // Format worked duration only if both clockIn and clockOut are available
     const workedDuration =
       clockInTime && clockOutTime
         ? formatDuration(clockOutTime - clockInTime)
-        : "N/A"; // If no clockOut, show N/A
+        : "N/A";
 
     return {
       action: log.action,
       clockInTime: clockInTime ? clockInTime.toLocaleTimeString() : "N/A",
+      dateClockIn: clockInTime ? clockInTime.toLocaleDateString() : "N/A", // ✅ Added
       clockOutTime: clockOutTime ? clockOutTime.toLocaleTimeString() : "N/A",
+      dateClockOut: clockOutTime ? clockOutTime.toLocaleDateString() : "N/A", // ✅ Added
       workedDuration: workedDuration,
     };
   });
@@ -111,7 +111,7 @@ app.get("/dashboard", async (request, response) => {
     clockStatus,
     workedHours,
     isClockedIn,
-    clockInTime: isClockedIn ? clockInTime.getTime() : null, // Pass timestamp for frontend
+    clockInTime: isClockedIn ? clockInTime.getTime() : null,
     logHistory: formattedLogHistory,
   });
 });
@@ -174,28 +174,33 @@ app.post("/login", async (request, response) => {
   response.redirect("/dashboard");
 });
 
-// clock in
+// // clock in
 app.post("/clockin", async (request, response) => {
   if (!request.session.user) return response.redirect("/login");
 
   try {
     const db = await connection();
     const clockInTime = new Date();
+    const dateClockIn = clockInTime.toISOString().split("T")[0]; // Extract only the date
 
     // Insert into work_hours collection
     await db.collection("work_hours").insertOne({
       employee_id: request.session.user.employee_id,
       clockIn: clockInTime,
+      dateClockIn: dateClockIn,
       clockOut: null,
+      dateClockOut: null, // Placeholder for future update
     });
 
-    // Log entry in log_history
+    // Log entry in log_history with date and time
     await db.collection("log_history").insertOne({
       employee_id: request.session.user.employee_id,
       action: "Clock In",
       timestamp: clockInTime,
       clockInTime: clockInTime,
+      dateClockIn: dateClockIn, // Storing only the date
       clockOutTime: null,
+      dateClockOut: null,
     });
 
     response.redirect("/dashboard");
@@ -212,6 +217,7 @@ app.post("/clockout", async (request, response) => {
   try {
     const db = await connection();
     const clockOutTime = new Date();
+    const dateClockOut = clockOutTime.toISOString().split("T")[0]; // Extract only the date
 
     // Find the most recent clock-in entry where clockOut is null
     const latestEntry = await db.collection("work_hours").findOne({
@@ -223,22 +229,28 @@ app.post("/clockout", async (request, response) => {
       return response.send("No active clock-in found.");
     }
 
-    // Update the clockOut time in work_hours
+    // Update the clockOut time and date in work_hours
     await db
       .collection("work_hours")
       .updateOne(
         { _id: latestEntry._id },
-        { $set: { clockOut: clockOutTime } }
+        { $set: { clockOut: clockOutTime, dateClockOut: dateClockOut } }
       );
 
-    // Update log_history to reflect the clock-out time
+    // Update log_history to reflect the clock-out time and date
     await db.collection("log_history").updateOne(
       {
         employee_id: request.session.user.employee_id,
         action: "Clock In",
         clockOutTime: null,
       },
-      { $set: { clockOutTime: clockOutTime, action: "Clock Out" } }
+      {
+        $set: {
+          clockOutTime: clockOutTime,
+          dateClockOut: dateClockOut,
+          action: "Clock Out",
+        },
+      }
     );
 
     response.redirect("/dashboard");
