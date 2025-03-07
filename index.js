@@ -234,6 +234,37 @@ app.post("/register", async (request, response) => {
   }
 });
 
+// change password
+app.post("/profile/change-password", async (request, response) => {
+  const { currentPassword, newPassword, confirmPassword } = request.body;
+
+  if (!currentPassword || !newPassword || !confirmPassword)
+    return response.send("All fields are required");
+
+  if (newPassword !== confirmPassword)
+    return response.send("New passwords do not match");
+
+  const db = await connection();
+  const user = await db.collection("users").findOne({
+    employee_id: request.session.user?.employee_id,
+  });
+
+  if (!user || !(await bcrypt.compare(currentPassword, user.password)))
+    return response.send("Current password is incorrect");
+
+  // Hash the new password before storing it
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+  await db
+    .collection("users")
+    .updateOne(
+      { employee_id: user.employee_id },
+      { $set: { password: hashedPassword } }
+    );
+
+  response.send("Password changed successfully!");
+});
+
 //login
 app.post("/login", async (request, response) => {
   const { employee_id, password } = request.body;
