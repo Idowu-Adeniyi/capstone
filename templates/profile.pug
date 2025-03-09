@@ -1,58 +1,210 @@
 
+//- doctype html
+//- html
+//-   head
+//-     title= title
+//-     link(rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css")
+//-     script(src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js")
+//-     link(rel="stylesheet" href="/css/styles.css")
+
+//-     style.
+//-       /* Ensure the body takes full height */
+//-       body {
+//-         min-height: 100vh;
+//-         display: flex;
+//-         flex-direction: column;
+//-       }
+//-       /* Push footer to the bottom */
+//-       .main-content {
+//-         flex-grow: 1;
+//-       }
+
+//-   body
+//-     // Navbar
+//-     nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
+//-       .container-fluid
+//-         a.navbar-brand(href="/") TimeTracker
+
+//-         button.navbar-toggler(type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav")
+//-           span.navbar-toggler-icon
+
+//-         #navbarNav.collapse.navbar-collapse
+//-           ul.navbar-nav.ms-auto
+//-             li.nav-item
+//-               a.nav-link(href="/") Home
+//-             li.nav-item
+//-               a.nav-link.active(href="/profile") Profile
+//-             li.nav-item
+//-               a.nav-link(href="/worklogs") Worklogs
+//-             li.nav-item
+//-               a.nav-link(href="/reports") Reports
+//-             li.nav-item
+//-               a.nav-link(href="/logout") Logout
+
+//-     .main-content.container.mt-5
+//-       h1.text-center Profile
+
+//-       // Profile Section
+//-       .row.justify-content-center
+//-         .col-md-6
+//-           .text-center
+//-             // Avatar Image
+//-             img(src="/images/myphoto.jpeg" alt="Profile Picture" class="rounded-circle" width="150" height="150")
+
+//-             // User Information
+//-             .mt-4
+//-               h3 #{user.fname} #{user.lname}  
+//-               p Employee ID: #{user.employee_id}   
+
+//-               // Edit Profile Button
+//-               form(action="/profile/edit" method="GET")
+//-                 button.btn.btn-warning.mt-3(type="submit") Edit Profile   
+
+//-       // Change Password Section
+//-       .row.justify-content-center.mt-5
+//-         .col-md-6
+//-           h2.text-center Change Password
+//-           form(action="/profile/change-password" method="POST")
+//-             .mb-3
+//-               label(for="currentPassword") Current Password:
+//-               input.form-control(type="password" id="currentPassword" name="currentPassword" required)
+
+//-             .mb-3
+//-               label(for="newPassword") New Password:
+//-               input.form-control(type="password" id="newPassword" name="newPassword" required minlength="4" placeholder="Enter new password (min. 4 characters)")
+
+//-             .mb-3
+//-               label(for="confirmPassword") Confirm New Password:
+//-               input.form-control(type="password" id="confirmPassword" name="confirmPassword" required minlength="4" placeholder="Confirm new password")
+
+//-             // Display success or error messages
+//-             if message
+//-               p(class=messageType) #{message}
+//-             button.btn.btn-danger.mt-4.w-100(type="submit") Update Password  
+
+//-     // Footer (Now properly placed at bottom)
+//-     footer.footer.bg-dark.text-light.text-center.py-3.mt-5
+//-       p &copy; 2025 TimeTracker. All rights reserved.
+
+
+
+
+
 doctype html
 html
   head
-    title #{title}
+    title= title
     link(rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css")
-    link(rel="stylesheet" href="/styles.css")
+    script(src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js")
+    link(rel="stylesheet" href="/css/styles.css")
+
+    style.
+      /* Ensure the body takes full height */
+      body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+      }
+
+      /* Fixed navbar at the top */
+      nav.navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        background-color: #343a40; /* Dark background for navbar */
+        padding: 10px 0;
+      }
+
+      /* Main content area (scrollable) */
+      .main-content {
+        margin-top: 100px; /* Increased offset for the fixed navbar */
+        flex-grow: 1;
+        overflow-y: auto;
+        padding-bottom: 70px; /* Space for the footer */
+        padding-top: 30px;  /* Extra padding to avoid overlap with header */
+      }
+
+      /* Fixed footer at the bottom */
+      footer.footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #343a40;
+        padding: 10px 0;
+        color: #fff;
+        text-align: center;
+        z-index: 1000;
+      }
 
   body
-    // Include Header (Ensure header is present in the includes folder)
-    include includes/header.pug 
+    // Navbar (Fixed to the top)
+    nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
+      .container-fluid
+        a.navbar-brand(href="/") TimeTracker
 
-    .container.mt-5
-      h1 Profile
+        button.navbar-toggler(type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav")
+          span.navbar-toggler-icon
+
+        #navbarNav.collapse.navbar-collapse
+          ul.navbar-nav.ms-auto
+            li.nav-item
+              a.nav-link(href="/") Home
+            li.nav-item
+              a.nav-link.active(href="/profile") Profile
+            li.nav-item
+              a.nav-link(href="/worklogs") Worklogs
+            li.nav-item
+              a.nav-link(href="/reports") Reports
+            li.nav-item
+              a.nav-link(href="/logout") Logout
+
+    // Main content section (scrollable)
+    .main-content.container.mt-5
+      h1.text-center Profile
 
       // Profile Section
-      .row
-        .col-md-6.offset-md-3
+      .row.justify-content-center
+        .col-md-6
           .text-center
-            // Avatar Image Section (50% radius for round shape)
+            // Avatar Image
             img(src="/images/myphoto.jpeg" alt="Profile Picture" class="rounded-circle" width="150" height="150")
 
-            // User Information Section
+            // User Information
             .mt-4
-              h3  #{user.fname}  #{user.lname}  
+              h3 #{user.fname} #{user.lname}  
               p Employee ID: #{user.employee_id}   
 
-              // Edit Profile Button (We'll implement this functionality later)
+              // Edit Profile Button
               form(action="/profile/edit" method="GET")
-                button.btn.btn-warning.mt-(type="submit") Edit Profile   
+                button.btn.btn-warning.mt-3(type="submit") Edit Profile   
 
-          // Change Password Section
-          .mt-5
-            h2 Change Password
-            form(action="/profile/change-password" method="POST")
-              .mb-3
-                label(for="currentPassword") Current Password:
-                input.form-control(type="password" id="currentPassword" name="currentPassword" required)
+      // Change Password Section
+      .row.justify-content-center.mt-5
+        .col-md-6
+          h2.text-center Change Password
+          form(action="/profile/change-password" method="POST")
+            .mb-3
+              label(for="currentPassword") Current Password:
+              input.form-control(type="password" id="currentPassword" name="currentPassword" required)
 
-              .mb-3
-                label(for="newPassword") New Password:
-                input.form-control(type="password" id="newPassword" name="newPassword" required minlength="4" placeholder="Enter new password (min. 4 characters)")
+            .mb-3
+              label(for="newPassword") New Password:
+              input.form-control(type="password" id="newPassword" name="newPassword" required minlength="4" placeholder="Enter new password (min. 4 characters)")
 
-              .mb-3
-                label(for="confirmPassword") Confirm New Password:
-                input.form-control(type="password" id="confirmPassword" name="confirmPassword" required minlength="4" placeholder="Confirm new password")
-              button.btn.btn-danger.mt-4(type="submit") Update Password  
+            .mb-3
+              label(for="confirmPassword") Confirm New Password:
+              input.form-control(type="password" id="confirmPassword" name="confirmPassword" required minlength="4" placeholder="Confirm new password")
 
-          // Added extra space to prevent content overlap with the footer
-          .mt-5
+            // Display success or error messages
+            if message
+              p(class=messageType) #{message}
+            button.btn.btn-danger.mt-4.w-100(type="submit") Update Password  
+            p
 
-    // Include Footer
-    include includes/footer.pug
-
-
-
-
-
+    // Footer (Fixed to the bottom)
+    footer.footer.bg-dark.text-light.text-center.py-3
+      p &copy; 2025 TimeTracker. All rights reserved.

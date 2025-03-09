@@ -1,0 +1,67 @@
+//- 
+
+
+
+doctype html
+html
+  head
+    title= title
+    link(rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css")
+    script(src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js")
+    link(rel="stylesheet" href="/css/styles.css")
+
+  body
+    // Navbar
+    nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
+      .container-fluid
+        a.navbar-brand(href="/") TimeTracker
+
+        button.navbar-toggler(type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav")
+          span.navbar-toggler-icon
+
+        #navbarNav.collapse.navbar-collapse
+          ul.navbar-nav.ms-auto
+            li.nav-item
+              a.nav-link(href="/") Home
+            li.nav-item
+              a.nav-link(href="/profile") Profile
+            li.nav-item
+              a.nav-link(href="/worklogs") Worklogs
+            li.nav-item
+              a.nav-link(href="/reports") Reports
+            li.nav-item
+              a.nav-link(href="/logout") Logout
+
+    // Main Content
+    .container.mt-5
+      .row.justify-content-center
+        .col-md-6
+          h1.text-center Edit Profile
+
+          // Edit Profile Form
+          form(action="/profile/edit" method="POST")
+            .mb-3
+              label(for="fname") First Name:
+              input.form-control(type="text" id="fname" name="fname" value=user.fname required)
+
+            .mb-3
+              label(for="lname") Last Name:
+              input.form-control(type="text" id="lname" name="lname" value=user.lname required)
+
+            .mb-3
+              label(for="phone") Phone:
+              input.form-control(type="text" id="phone" name="phone" value=user.phone required)
+
+            .mb-3
+              label(for="email") Email:
+              input.form-control(type="email" id="email" name="email" value=user.email required)
+
+            .mb-3
+              label(for="address") Address:
+              input.form-control(type="text" id="address" name="address" value=user.address required)
+
+            button.btn.btn-success.mt-4.w-100(type="submit") Save Changes
+
+    // Footer (Fixed at bottom)
+    footer.footer.bg-dark.text-light.text-center.py-3.fixed-bottom
+      p &copy; 2025 TimeTracker. All rights reserved.

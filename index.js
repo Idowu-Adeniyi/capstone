@@ -239,10 +239,18 @@ app.post("/profile/change-password", async (request, response) => {
   const { currentPassword, newPassword, confirmPassword } = request.body;
 
   if (!currentPassword || !newPassword || !confirmPassword)
-    return response.send("All fields are required");
+    return response.render("profile", {
+      message: "All fields are required",
+      messageType: "danger",
+      user: request.session.user,
+    });
 
   if (newPassword !== confirmPassword)
-    return response.send("New passwords do not match");
+    return response.render("profile", {
+      message: "New passwords do not match",
+      messageType: "danger",
+      user: request.session.user,
+    });
 
   const db = await connection();
   const user = await db.collection("users").findOne({
@@ -250,7 +258,11 @@ app.post("/profile/change-password", async (request, response) => {
   });
 
   if (!user || !(await bcrypt.compare(currentPassword, user.password)))
-    return response.send("Current password is incorrect");
+    return response.render("profile", {
+      message: "Current password is incorrect",
+      messageType: "danger",
+      user: request.session.user,
+    });
 
   // Hash the new password before storing it
   const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -262,7 +274,11 @@ app.post("/profile/change-password", async (request, response) => {
       { $set: { password: hashedPassword } }
     );
 
-  response.send("Password changed successfully!");
+  response.render("profile", {
+    message: "Password changed successfully!",
+    messageType: "success",
+    user: request.session.user,
+  });
 });
 
 //login
@@ -283,6 +299,91 @@ app.post("/login", async (request, response) => {
     lname: user.lname,
   };
   response.redirect("/dashboard");
+});
+
+// Edit Profile
+// Route to edit profile
+app.get("/profile/edit", async (request, response) => {
+  if (!request.session.user) {
+    return response.redirect("/login");
+  }
+
+  const { employee_id } = request.session.user;
+
+  try {
+    const db = await connection();
+    const user = await db.collection("users").findOne({ employee_id });
+
+    if (!user) {
+      return response.status(404).send("User not found");
+    }
+
+    return response.render("edit-profile", {
+      title: "Edit Profile",
+      user: user, // Pass user data to pre-fill the form
+    });
+  } catch (err) {
+    console.error("Error fetching user data:", err);
+    return response.status(500).send("Error fetching user data");
+  }
+});
+
+// Update Profile
+// Route to handle profile update
+app.post("/profile/edit", async (request, response) => {
+  if (!request.session.user) {
+    return response.redirect("/login");
+  }
+
+  const { employee_id } = request.session.user;
+  const { fname, lname, email, phone } = request.body;
+
+  if (!fname || !lname || !email || !phone) {
+    return response.render("edit-profile", {
+      title: "Edit Profile",
+      message: "All fields are required",
+      messageType: "danger",
+      user: { fname, lname, email, phone },
+    });
+  }
+
+  try {
+    const db = await connection();
+    const result = await db.collection("users").updateOne(
+      { employee_id },
+      {
+        $set: {
+          fname,
+          lname,
+          email,
+          phone,
+        },
+      }
+    );
+
+    if (result.modifiedCount === 0) {
+      return response.render("edit-profile", {
+        title: "Edit Profile",
+        message: "No changes detected",
+        messageType: "warning",
+        user: { fname, lname, email, phone },
+      });
+    }
+
+    // Update session user data as well if needed
+    request.session.user = {
+      ...request.session.user,
+      fname,
+      lname,
+      email,
+      phone,
+    };
+
+    response.redirect("/profile"); // Redirect to the profile page after successful update
+  } catch (err) {
+    console.error("Error updating user data:", err);
+    return response.status(500).send("Error updating user data");
+  }
 });
 
 // // clock in
