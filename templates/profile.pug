@@ -96,11 +96,23 @@ html
             img#profileImage(src=user.photo || "/images/default-avatar.png" alt="Profile Picture" class="rounded-circle" width="150" height="150")
             label.change-photo(for="photoUpload")
               i.fas.fa-camera
-            input#photoUpload(type="file" accept="image/*")
 
           form(action="/profile/upload-photo" method="POST" enctype="multipart/form-data")
-            input(type="hidden" name="userId" value=user.id)
-            button.btn.btn-primary.mt-3(type="submit") Upload Photo
+            input(type="file" name="photoUpload" id="photoUpload" accept="image/*")
+            button.btn.btn-primary.mt-3(type="submit") Save Photo 
+          
+            //- if message 
+            //-     .success-message(id="successMessage")
+            //-         | #{message}
+            //- script. 
+            //-   setTimeout(function(){
+            //-     var successMessage = document.getElementById("successMessage");
+            //-     if (successMessage){
+            //-         successMessage.style.display = "none";
+            //-     }
+            //-   }, 5000);
+                  
+          
 
           .mt-4
             h3 #{user.fname} #{user.lname}  
@@ -110,7 +122,18 @@ html
             p Address: #{user.address || "No address available"}  
 
             form(action="/profile/edit" method="GET")
-              button.btn.btn-warning.mt-3(type="submit") Edit Profile   
+              button.btn.btn-warning.mt-3(type="submit") Edit Profile 
+
+            if message
+              .success-message(id="successMessage")
+                | #{message}
+            script. 
+              setTimeout(function(){
+                var successMessage = document.getElementById("successMessage");
+                if (successMessage){
+                    successMessage.style.display = "none";
+                }
+              }, 5000);  
 
       .row.justify-content-center.mt-5
         .col-md-6
@@ -128,8 +151,8 @@ html
               label(for="confirmPassword") Confirm New Password:
               input.form-control(type="password" id="confirmPassword" name="confirmPassword" required minlength="4" placeholder="Confirm new password")
 
-            if message
-              p(class=messageType) #{message}
+            //- if message
+            //-   p(class=messageType) #{message}
             button.btn.btn-danger.mt-4.w-100(type="submit") Update Password  
 
     footer.footer.bg-dark.text-light.text-center.py-3

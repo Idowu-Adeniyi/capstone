@@ -31,7 +31,7 @@ const client = new MongoClient(dbUrl);
 
 async function connection() {
   await client.connect(); // Ensure the client is connected
-  const db = client.db("workhourtracker");
+  const db = client.db("capstonedb");
   return db;
 }
 

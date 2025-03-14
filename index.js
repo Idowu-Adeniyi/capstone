@@ -91,7 +91,6 @@ app.get("/worklogs", async (request, response) => {
 });
 
 // profile
-
 app.get("/profile", async (request, response) => {
   if (!request.session.user) {
     // If no user in session, redirect to login
@@ -100,6 +99,7 @@ app.get("/profile", async (request, response) => {
 
   // Extracting user credentials from session
   const { employee_id } = request.session.user;
+  const message = request.query.message || ""; // Capture the success message from the query parameter if it exists
 
   try {
     // Fetching user data from database based on employee_id
@@ -115,6 +115,7 @@ app.get("/profile", async (request, response) => {
     return response.render("profile", {
       title: "Profile",
       user: user, // Passing user data to profile.pug
+      message: message, // Passing the message to the template
     });
   } catch (err) {
     // If there's an error, log it and return a 500 error
@@ -302,7 +303,6 @@ app.post("/login", async (request, response) => {
 });
 
 // Edit Profile
-
 app.get("/profile/edit", async (request, response) => {
   if (!request.session.user) {
     return response.redirect("/login");
@@ -329,11 +329,13 @@ app.get("/profile/edit", async (request, response) => {
 });
 
 // Image Upload
+// Set up Multer storage configuration for file uploads
 const storage = multer.diskStorage({
   destination: (request, file, cb) => {
-    cb(null, "public/images");
+    cb(null, "public/images"); // Ensure this folder exists
   },
   filename: (request, file, cb) => {
+    // Use the employee ID and file extension for unique naming
     cb(
       null,
       `profile-${request.session.user.employee_id}${path.extname(
@@ -343,24 +345,52 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+const upload = multer({ storage: storage });
 
+// Route to handle photo upload
 app.post(
   "/profile/upload-photo",
   upload.single("photoUpload"),
   async (request, response) => {
-    if (!request.session.user) return response.redirect("/login");
+    if (!request.session.user) {
+      return response.redirect("/login");
+    }
 
-    const db = await connection();
+    // Log the uploaded file for debugging
+    console.log("Uploaded file:", request.file);
+
+    // Check if a file was uploaded
+    if (!request.file) {
+      return response.status(400).send("No file uploaded");
+    }
+
     const userId = request.session.user.employee_id;
     const photoPath = `/images/${request.file.filename}`;
 
-    await db
-      .collection("users")
-      .updateOne({ employee_id: userId }, { $set: { photo: photoPath } });
+    // Log the path to save in DB
+    console.log("Saving photo path:", photoPath);
 
-    request.session.user.photo = photoPath; // Update session data
-    response.redirect("/profile");
+    try {
+      // Connect to MongoDB without deprecated options
+      const db = await MongoClient.connect("mongodb://localhost:27017");
+
+      const database = db.db("capstonedb");
+
+      // Update the user's photo path in the database
+      await database
+        .collection("users")
+        .updateOne({ employee_id: userId }, { $set: { photo: photoPath } });
+
+      // Update the session with the new photo path
+      request.session.user.photo = photoPath;
+
+      // Redirect with success message
+      const message = "Your photo has been successfully updated!";
+      response.redirect(`/profile?message=${encodeURIComponent(message)}`);
+    } catch (error) {
+      console.error("Error saving photo:", error);
+      return response.status(500).send("Server error while uploading photo");
+    }
   }
 );
 
