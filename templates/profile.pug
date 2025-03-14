@@ -1,95 +1,3 @@
-
-//- doctype html
-//- html
-//-   head
-//-     title= title
-//-     link(rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css")
-//-     script(src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js")
-//-     link(rel="stylesheet" href="/css/styles.css")
-
-//-     style.
-//-       /* Ensure the body takes full height */
-//-       body {
-//-         min-height: 100vh;
-//-         display: flex;
-//-         flex-direction: column;
-//-       }
-//-       /* Push footer to the bottom */
-//-       .main-content {
-//-         flex-grow: 1;
-//-       }
-
-//-   body
-//-     // Navbar
-//-     nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
-//-       .container-fluid
-//-         a.navbar-brand(href="/") TimeTracker
-
-//-         button.navbar-toggler(type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav")
-//-           span.navbar-toggler-icon
-
-//-         #navbarNav.collapse.navbar-collapse
-//-           ul.navbar-nav.ms-auto
-//-             li.nav-item
-//-               a.nav-link(href="/") Home
-//-             li.nav-item
-//-               a.nav-link.active(href="/profile") Profile
-//-             li.nav-item
-//-               a.nav-link(href="/worklogs") Worklogs
-//-             li.nav-item
-//-               a.nav-link(href="/reports") Reports
-//-             li.nav-item
-//-               a.nav-link(href="/logout") Logout
-
-//-     .main-content.container.mt-5
-//-       h1.text-center Profile
-
-//-       // Profile Section
-//-       .row.justify-content-center
-//-         .col-md-6
-//-           .text-center
-//-             // Avatar Image
-//-             img(src="/images/myphoto.jpeg" alt="Profile Picture" class="rounded-circle" width="150" height="150")
-
-//-             // User Information
-//-             .mt-4
-//-               h3 #{user.fname} #{user.lname}  
-//-               p Employee ID: #{user.employee_id}   
-
-//-               // Edit Profile Button
-//-               form(action="/profile/edit" method="GET")
-//-                 button.btn.btn-warning.mt-3(type="submit") Edit Profile   
-
-//-       // Change Password Section
-//-       .row.justify-content-center.mt-5
-//-         .col-md-6
-//-           h2.text-center Change Password
-//-           form(action="/profile/change-password" method="POST")
-//-             .mb-3
-//-               label(for="currentPassword") Current Password:
-//-               input.form-control(type="password" id="currentPassword" name="currentPassword" required)
-
-//-             .mb-3
-//-               label(for="newPassword") New Password:
-//-               input.form-control(type="password" id="newPassword" name="newPassword" required minlength="4" placeholder="Enter new password (min. 4 characters)")
-
-//-             .mb-3
-//-               label(for="confirmPassword") Confirm New Password:
-//-               input.form-control(type="password" id="confirmPassword" name="confirmPassword" required minlength="4" placeholder="Confirm new password")
-
-//-             // Display success or error messages
-//-             if message
-//-               p(class=messageType) #{message}
-//-             button.btn.btn-danger.mt-4.w-100(type="submit") Update Password  
-
-//-     // Footer (Now properly placed at bottom)
-//-     footer.footer.bg-dark.text-light.text-center.py-3.mt-5
-//-       p &copy; 2025 TimeTracker. All rights reserved.
-
-
-
-
-
 doctype html
 html
   head
@@ -97,9 +5,9 @@ html
     link(rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css")
     script(src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js")
     link(rel="stylesheet" href="/css/styles.css")
+    link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css")
 
     style.
-      /* Ensure the body takes full height */
       body {
         min-height: 100vh;
         display: flex;
@@ -107,27 +15,24 @@ html
         margin: 0;
       }
 
-      /* Fixed navbar at the top */
       nav.navbar {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         z-index: 1000;
-        background-color: #343a40; /* Dark background for navbar */
+        background-color: #343a40;
         padding: 10px 0;
       }
 
-      /* Main content area (scrollable) */
       .main-content {
-        margin-top: 100px; /* Increased offset for the fixed navbar */
+        margin-top: 70px;
         flex-grow: 1;
         overflow-y: auto;
-        padding-bottom: 70px; /* Space for the footer */
-        padding-top: 30px;  /* Extra padding to avoid overlap with header */
+        padding-bottom: 100px; /* More space to prevent footer overlap */
+        padding-top: 20px;
       }
 
-      /* Fixed footer at the bottom */
       footer.footer {
         position: fixed;
         bottom: 0;
@@ -140,8 +45,28 @@ html
         z-index: 1000;
       }
 
+      .profile-pic {
+        position: relative;
+        display: inline-block;
+      }
+
+      .change-photo {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        border-radius: 50%;
+        padding: 10px;
+        cursor: pointer;
+      }
+
+      #photoUpload {
+        display: none;
+      }
+
   body
-    // Navbar (Fixed to the top)
     nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
       .container-fluid
         a.navbar-brand(href="/") TimeTracker
@@ -162,27 +87,31 @@ html
             li.nav-item
               a.nav-link(href="/logout") Logout
 
-    // Main content section (scrollable)
     .main-content.container.mt-5
       h1.text-center Profile
 
-      // Profile Section
       .row.justify-content-center
-        .col-md-6
-          .text-center
-            // Avatar Image
-            img(src="/images/myphoto.jpeg" alt="Profile Picture" class="rounded-circle" width="150" height="150")
+        .col-md-6.text-center
+          .profile-pic
+            img#profileImage(src=user.photo || "/images/default-avatar.png" alt="Profile Picture" class="rounded-circle" width="150" height="150")
+            label.change-photo(for="photoUpload")
+              i.fas.fa-camera
+            input#photoUpload(type="file" accept="image/*")
 
-            // User Information
-            .mt-4
-              h3 #{user.fname} #{user.lname}  
-              p Employee ID: #{user.employee_id}   
+          form(action="/profile/upload-photo" method="POST" enctype="multipart/form-data")
+            input(type="hidden" name="userId" value=user.id)
+            button.btn.btn-primary.mt-3(type="submit") Upload Photo
 
-              // Edit Profile Button
-              form(action="/profile/edit" method="GET")
-                button.btn.btn-warning.mt-3(type="submit") Edit Profile   
+          .mt-4
+            h3 #{user.fname} #{user.lname}  
+            p Employee ID: #{user.employee_id}  
+            p Email: #{user.email}  
+            p Phone: #{user.phone}  
+            p Address: #{user.address || "No address available"}  
 
-      // Change Password Section
+            form(action="/profile/edit" method="GET")
+              button.btn.btn-warning.mt-3(type="submit") Edit Profile   
+
       .row.justify-content-center.mt-5
         .col-md-6
           h2.text-center Change Password
@@ -199,12 +128,21 @@ html
               label(for="confirmPassword") Confirm New Password:
               input.form-control(type="password" id="confirmPassword" name="confirmPassword" required minlength="4" placeholder="Confirm new password")
 
-            // Display success or error messages
             if message
               p(class=messageType) #{message}
             button.btn.btn-danger.mt-4.w-100(type="submit") Update Password  
-            p
 
-    // Footer (Fixed to the bottom)
     footer.footer.bg-dark.text-light.text-center.py-3
       p &copy; 2025 TimeTracker. All rights reserved.
+
+    script.
+      document.getElementById("photoUpload").addEventListener("change", function(event) {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            document.getElementById("profileImage").src = e.target.result;
+          }
+          reader.readAsDataURL(file);
+        }
+      });

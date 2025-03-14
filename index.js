@@ -302,7 +302,7 @@ app.post("/login", async (request, response) => {
 });
 
 // Edit Profile
-// Route to edit profile
+
 app.get("/profile/edit", async (request, response) => {
   if (!request.session.user) {
     return response.redirect("/login");
@@ -328,7 +328,42 @@ app.get("/profile/edit", async (request, response) => {
   }
 });
 
-// Update Profile
+// Image Upload
+const storage = multer.diskStorage({
+  destination: (request, file, cb) => {
+    cb(null, "public/images");
+  },
+  filename: (request, file, cb) => {
+    cb(
+      null,
+      `profile-${request.session.user.employee_id}${path.extname(
+        file.originalname
+      )}`
+    );
+  },
+});
+
+const upload = multer({ storage });
+
+app.post(
+  "/profile/upload-photo",
+  upload.single("photoUpload"),
+  async (request, response) => {
+    if (!request.session.user) return response.redirect("/login");
+
+    const db = await connection();
+    const userId = request.session.user.employee_id;
+    const photoPath = `/images/${request.file.filename}`;
+
+    await db
+      .collection("users")
+      .updateOne({ employee_id: userId }, { $set: { photo: photoPath } });
+
+    request.session.user.photo = photoPath; // Update session data
+    response.redirect("/profile");
+  }
+);
+
 // Route to handle profile update
 app.post("/profile/edit", async (request, response) => {
   if (!request.session.user) {
@@ -336,14 +371,14 @@ app.post("/profile/edit", async (request, response) => {
   }
 
   const { employee_id } = request.session.user;
-  const { fname, lname, email, phone } = request.body;
+  const { fname, lname, email, phone, address } = request.body;
 
-  if (!fname || !lname || !email || !phone) {
+  if (!fname || !lname || !email || !phone || !address) {
     return response.render("edit-profile", {
       title: "Edit Profile",
       message: "All fields are required",
       messageType: "danger",
-      user: { fname, lname, email, phone },
+      user: { fname, lname, email, phone, address },
     });
   }
 
@@ -357,6 +392,7 @@ app.post("/profile/edit", async (request, response) => {
           lname,
           email,
           phone,
+          address,
         },
       }
     );
@@ -366,7 +402,7 @@ app.post("/profile/edit", async (request, response) => {
         title: "Edit Profile",
         message: "No changes detected",
         messageType: "warning",
-        user: { fname, lname, email, phone },
+        user: { fname, lname, email, phone, address },
       });
     }
 
@@ -377,6 +413,7 @@ app.post("/profile/edit", async (request, response) => {
       lname,
       email,
       phone,
+      address,
     };
 
     response.redirect("/profile"); // Redirect to the profile page after successful update
