@@ -526,18 +526,33 @@ app.post("/profile/edit", async (request, response) => {
 
 // Reports
 app.get("/reports", async (request, response) => {
-  // Check if user is logged in and has admin privileges
   if (!request.session.user || request.session.user.role !== "admin") {
-    return response.redirect("/login"); // Redirect to login if not an admin
+    return response.redirect("/login");
   }
 
   try {
     const db = await connection();
+    const { employee_id, date_from, date_to } = request.query;
 
-    // Fetch all work logs
-    const workLogs = await db.collection("work_hours").find().toArray();
+    const query = {};
+    if (employee_id) query.employee_id = employee_id;
+    if (date_from || date_to) {
+      query.clockIn = {};
+      if (date_from) query.clockIn.$gte = new Date(date_from);
+      if (date_to) query.clockIn.$lte = new Date(date_to);
+    }
 
-    // Group work logs by user and calculate total hours
+    const workLogs = await db.collection("work_hours").find(query).toArray();
+    const employees = await db
+      .collection("users")
+      .find({ active: { $ne: false } })
+      .toArray();
+
+    const employeeMap = employees.reduce((acc, emp) => {
+      acc[emp.employee_id] = `${emp.fname} ${emp.lname}`;
+      return acc;
+    }, {});
+
     let totalHoursByUser = {};
     workLogs.forEach((log) => {
       if (!totalHoursByUser[log.employee_id]) {
@@ -545,24 +560,137 @@ app.get("/reports", async (request, response) => {
       }
       if (log.clockIn && log.clockOut) {
         totalHoursByUser[log.employee_id] +=
-          (new Date(log.clockOut) - new Date(log.clockIn)) / 3600000; // Convert ms to hours
+          (new Date(log.clockOut) - new Date(log.clockIn)) / 3600000;
       }
     });
 
-    // Format the report data for rendering
     let formattedReport = Object.keys(totalHoursByUser).map((id) => ({
       employee_id: id,
+      employee_name: employeeMap[id] || "Unknown",
       total_hours: totalHoursByUser[id].toFixed(2) + " hrs",
     }));
 
-    // Render the reports view with the report data
+    const limitedReport = formattedReport.slice(0, 6); // Show only 6 rows initially
+
     response.render("reports", {
       title: "Work Reports",
-      reports: formattedReport,
+      reports: limitedReport,
+      allReports: formattedReport.length > 6 ? formattedReport : null, // Show "View All" if more than 6
+      employees,
     });
   } catch (err) {
     console.error("Error fetching work logs:", err);
-    response.send("An error occurred while fetching the work logs.");
+    response
+      .status(500)
+      .send("An error occurred while fetching the work logs.");
+  }
+});
+
+// Get all employees
+app.get("/get-all-employees", async (request, response) => {
+  try {
+    const db = await connection();
+    const employees = await db
+      .collection("users")
+      .find({ active: { $ne: false } }) // Fetch only active employees
+      .toArray();
+
+    response.render("employees", {
+      title: "All Employees",
+      employees,
+    });
+  } catch (err) {
+    console.error("Error fetching employees:", err);
+    response.status(500).send("Failed to fetch employees");
+  }
+});
+
+// Export work logs as CSV (Fixes missing names)
+app.get("/export-csv", async (request, response) => {
+  try {
+    const db = await connection();
+    const workLogs = await db.collection("work_hours").find().toArray();
+    const employees = await db.collection("users").find().toArray();
+
+    const employeeMap = employees.reduce((acc, emp) => {
+      acc[emp.employee_id] = `${emp.fname} ${emp.lname}`;
+      return acc;
+    }, {});
+
+    let csv = "Employee ID,Employee Name,Clock In,Clock Out,Total Hours\n";
+    workLogs.forEach((log) => {
+      const totalHours =
+        log.clockIn && log.clockOut
+          ? (new Date(log.clockOut) - new Date(log.clockIn)) / 3600000
+          : 0;
+      csv += `${log.employee_id},${employeeMap[log.employee_id] || "Unknown"},${
+        log.clockIn || "N/A"
+      },${log.clockOut || "N/A"},${totalHours.toFixed(2)} hrs\n`;
+    });
+
+    response.header("Content-Type", "text/csv");
+    response.attachment("work_logs.csv");
+    response.send(csv);
+  } catch (err) {
+    console.error("Error exporting CSV:", err);
+    response.status(500).send("Failed to export data");
+  }
+});
+
+// Edit Employee Details - Fixing incorrect field references
+app.post("/edit-user", async (request, response) => {
+  const {
+    edit_employee_id,
+    edit_first_name,
+    edit_last_name,
+    edit_employee_role,
+  } = request.body;
+
+  try {
+    const db = await connection();
+    const updateResult = await db.collection("users").updateOne(
+      { employee_id: edit_employee_id },
+      {
+        $set: {
+          fname: edit_first_name,
+          lname: edit_last_name,
+          role: edit_employee_role,
+        },
+      }
+    );
+
+    if (updateResult.modifiedCount === 0) {
+      return response.status(400).send("No employee updated.");
+    }
+
+    response.redirect("/reports");
+  } catch (err) {
+    console.error("Error updating employee details:", err);
+    response.status(500).send("Failed to update employee details");
+  }
+});
+
+// Delete/Deactivate Employee - Ensure proper deactivation
+app.post("/delete-user", async (request, response) => {
+  const { delete_employee_id } = request.body;
+
+  try {
+    const db = await connection();
+    const updateResult = await db
+      .collection("users")
+      .updateOne(
+        { employee_id: delete_employee_id },
+        { $set: { active: false } }
+      );
+
+    if (updateResult.modifiedCount === 0) {
+      return response.status(400).send("No employee found to deactivate.");
+    }
+
+    response.redirect("/reports");
+  } catch (err) {
+    console.error("Error deactivating employee:", err);
+    response.status(500).send("Failed to deactivate employee");
   }
 });
 
@@ -571,33 +699,209 @@ app.get("/reports", async (request, response) => {
 //     return response.redirect("/login");
 //   }
 
-//   const db = await connection();
+//   try {
+//     const db = await connection();
+//     const { employee_id, date_from, date_to } = request.query;
 
-//   // Fetch all work logs
-//   const workLogs = await db.collection("work_hours").find().toArray();
-
-//   // Group work logs by user and calculate total hours
-//   let totalHoursByUser = {};
-//   workLogs.forEach((log) => {
-//     if (!totalHoursByUser[log.employee_id]) {
-//       totalHoursByUser[log.employee_id] = 0;
+//     const query = {};
+//     if (employee_id) query.employee_id = employee_id;
+//     if (date_from || date_to) {
+//       query.clockIn = {};
+//       if (date_from) query.clockIn.$gte = new Date(date_from);
+//       if (date_to) query.clockIn.$lte = new Date(date_to);
 //     }
-//     if (log.clockIn && log.clockOut) {
-//       totalHoursByUser[log.employee_id] +=
-//         (new Date(log.clockOut) - new Date(log.clockIn)) / 3600000; // Convert ms to hours
+
+//     const workLogs = await db.collection("work_hours").find(query).toArray();
+//     const employees = await db.collection("users").find().toArray();
+//     const employeeMap = employees.reduce((acc, emp) => {
+//       acc[emp.employee_id] = `${emp.fname} ${emp.lname}`;
+//       return acc;
+//     }, {});
+
+//     let totalHoursByUser = {};
+//     workLogs.forEach((log) => {
+//       if (!totalHoursByUser[log.employee_id]) {
+//         totalHoursByUser[log.employee_id] = 0;
+//       }
+//       if (log.clockIn && log.clockOut) {
+//         totalHoursByUser[log.employee_id] +=
+//           (new Date(log.clockOut) - new Date(log.clockIn)) / 3600000;
+//       }
+//     });
+
+//     let formattedReport = Object.keys(totalHoursByUser).map((id) => ({
+//       employee_id: id,
+//       employee_name: employeeMap[id] || "Unknown",
+//       total_hours: totalHoursByUser[id].toFixed(2) + " hrs",
+//     }));
+
+//     response.render("reports", {
+//       title: "Work Reports",
+//       reports: formattedReport,
+//       employees,
+//     });
+//   } catch (err) {
+//     console.error("Error fetching work logs:", err);
+//     response
+//       .status(500)
+//       .send("An error occurred while fetching the work logs.");
+//   }
+// });
+
+// // Get all employees
+// app.get("/get-all-employees", async (request, response) => {
+//   try {
+//     const db = await connection();
+//     const employees = await db.collection("users").find().toArray();
+//     response.json(employees);
+//   } catch (err) {
+//     console.error("Error fetching employees:", err);
+//     response.status(500).send("Failed to fetch employees");
+//   }
+// });
+
+// // Export work logs as CSV
+// app.get("/export-csv", async (request, response) => {
+//   try {
+//     const db = await connection();
+//     const workLogs = await db.collection("work_hours").find().toArray();
+
+//     let csv = "Employee ID,Employee Name,Clock In,Clock Out,Total Hours\n";
+//     workLogs.forEach((log) => {
+//       const totalHours =
+//         log.clockIn && log.clockOut
+//           ? (new Date(log.clockOut) - new Date(log.clockIn)) / 3600000
+//           : 0;
+//       csv += `${log.employee_id},${log.employee_name || "N/A"},${
+//         log.clockIn || "N/A"
+//       },${log.clockOut || "N/A"},${totalHours.toFixed(2)} hrs\n`;
+//     });
+
+//     response.header("Content-Type", "text/csv");
+//     response.attachment("work_logs.csv");
+//     response.send(csv);
+//   } catch (err) {
+//     console.error("Error exporting CSV:", err);
+//     response.status(500).send("Failed to export data");
+//   }
+// });
+
+// // Reset work logs
+// app.post("/reset-clock", async (request, response) => {
+//   const { reset_employee_id, reset_date, start_time, end_time } = request.body;
+//   try {
+//     const db = await connection();
+//     const clockIn = new Date(`${reset_date}T${start_time}:00Z`);
+//     const clockOut = new Date(`${reset_date}T${end_time}:00Z`);
+
+//     await db.collection("work_hours").updateOne(
+//       {
+//         employee_id: reset_employee_id,
+//         clockIn: { $gte: new Date(reset_date) },
+//       },
+//       { $set: { clockIn, clockOut } }
+//     );
+//     response.redirect("/reports");
+//   } catch (err) {
+//     console.error("Error resetting work log:", err);
+//     response.status(500).send("Failed to reset work log");
+//   }
+// });
+
+// // Edit Employee Details
+// app.post("/edit-user", async (request, response) => {
+//   const {
+//     edit_employee_id,
+//     edit_first_name,
+//     edit_last_name,
+//     edit_employee_role,
+//   } = request.body;
+//   try {
+//     const db = await connection();
+//     await db.collection("users").updateOne(
+//       { employee_id: edit_employee_id },
+//       {
+//         $set: {
+//           fname: edit_first_name,
+//           lname: edit_last_name,
+//           role: edit_employee_role,
+//         },
+//       }
+//     );
+//     response.redirect("/reports");
+//   } catch (err) {
+//     console.error("Error updating employee details:", err);
+//     response.status(500).send("Failed to update employee details");
+//   }
+// });
+
+// // Delete/Deactivate Employee
+// app.post("/delete-user", async (request, response) => {
+//   const { delete_employee_id } = request.body;
+//   try {
+//     const db = await connection();
+//     await db.collection("users").updateOne(
+//       { employee_id: delete_employee_id },
+//       { $set: { active: false } } // Deactivate instead of deleting
+//     );
+//     response.redirect("/reports");
+//   } catch (err) {
+//     console.error("Error deactivating employee:", err);
+//     response.status(500).send("Failed to deactivate employee");
+//   }
+// });
+
+// app.get("/reports", async (request, response) => {
+//   if (!request.session.user || request.session.user.role !== "admin") {
+//     return response.redirect("/login");
+//   }
+
+//   try {
+//     const db = await connection();
+//     const { employee_id, date_from, date_to } = request.query;
+
+//     const query = {};
+//     if (employee_id) query.employee_id = employee_id;
+//     if (date_from || date_to) {
+//       query.clockIn = {};
+//       if (date_from) query.clockIn.$gte = new Date(date_from);
+//       if (date_to) query.clockIn.$lte = new Date(date_to);
 //     }
-//   });
 
-//   // Convert to a format usable in the view
-//   let formattedReport = Object.keys(totalHoursByUser).map((id) => ({
-//     employee_id: id,
-//     total_hours: totalHoursByUser[id].toFixed(2) + " hrs",
-//   }));
+//     const workLogs = await db.collection("work_hours").find(query).toArray();
+//     const employees = await db.collection("users").find().toArray();
+//     const employeeMap = employees.reduce((acc, emp) => {
+//       acc[emp.employee_id] = `${emp.fname} ${emp.lname}`;
+//       return acc;
+//     }, {});
 
-//   response.render("reports", {
-//     title: "Work Reports",
-//     reports: formattedReport,
-//   });
+//     let totalHoursByUser = {};
+//     workLogs.forEach((log) => {
+//       if (!totalHoursByUser[log.employee_id]) {
+//         totalHoursByUser[log.employee_id] = 0;
+//       }
+//       if (log.clockIn && log.clockOut) {
+//         totalHoursByUser[log.employee_id] +=
+//           (new Date(log.clockOut) - new Date(log.clockIn)) / 3600000;
+//       }
+//     });
+
+//     let formattedReport = Object.keys(totalHoursByUser).map((id) => ({
+//       employee_id: id,
+//       employee_name: employeeMap[id] || "Unknown",
+//       total_hours: totalHoursByUser[id].toFixed(2) + " hrs",
+//     }));
+
+//     response.render("reports", {
+//       title: "Work Reports",
+//       reports: formattedReport,
+//     });
+//   } catch (err) {
+//     console.error("Error fetching work logs:", err);
+//     response
+//       .status(500)
+//       .send("An error occurred while fetching the work logs.");
+//   }
 // });
 
 // Edit employee

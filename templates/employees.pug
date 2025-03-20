@@ -1,0 +1,190 @@
+doctype html
+html
+  head
+    title= title
+    link(rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css")
+    script(src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js")
+    link(rel="stylesheet" href="/css/styles.css")
+    link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css")
+    
+  body
+    // Add Navbar (Header)
+    nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
+      .container-fluid
+        a.navbar-brand(href="/") TimeTracker
+        button.navbar-toggler(type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav")
+          span.navbar-toggler-icon
+        #navbarNav.collapse.navbar-collapse
+          ul.navbar-nav.ms-auto
+            li.nav-item
+              a.nav-link(href="/") Home
+            li.nav-item
+              a.nav-link(href="/profile") Profile
+            li.nav-item
+              a.nav-link(href="/worklogs") Worklogs
+            li.nav-item
+              a.nav-link.active(href="/reports") Reports
+            li.nav-item
+              a.nav-link(href="/logout") Logout
+
+    // Main Content Section
+    .main-content.container.mt-5
+      h1.text-center All Employees
+
+      table.table.table-striped
+        thead
+          tr
+            th Employee ID
+            th First Name
+            th Last Name
+            th Email
+            th Phone
+            th Address
+            th Role
+            th Photo
+        tbody
+          each employee in employees
+            tr
+              td= employee.employee_id
+              td= employee.fname
+              td= employee.lname
+              td= employee.email
+              td= employee.phone
+              td= employee.address
+              td= employee.role
+              td
+                // "View Photo" link that triggers the modal
+                button.btn.btn-info(data-bs-toggle="modal" data-bs-target="#photoModal" data-photo=employee.photo) View Photo
+
+      div.text-center.mt-4
+        // Align the "Back to Reports" button to the left
+        a.btn.btn-secondary(href="/reports") Back to Reports
+        // Align "Print" and "Download CSV" links to the right
+        a.btn.btn-link(href="javascript:window.print();") Print
+        a.btn.btn-link(href="javascript:downloadCSV();") Download CSV
+
+    // Modal for Viewing Profile Photo
+    .modal.fade(id="photoModal" tabindex="-1" aria-labelledby="photoModalLabel" aria-hidden="true")
+      .modal-dialog
+        .modal-content
+          .modal-header
+            h5.modal-title(id="photoModalLabel") Employee Profile Photo
+            button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+          .modal-body
+            img#employeePhoto.img-fluid(src="" alt="Employee Photo")
+          .modal-footer
+            button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Close
+
+    // Footer from the styling example
+    footer.footer.bg-dark.text-light.text-center.py-3
+      p &copy; 2025 TimeTracker. All rights reserved.
+
+  script.
+    // JavaScript to handle modal data population for the photo
+    const photoModal = document.getElementById('photoModal')
+    photoModal.addEventListener('show.bs.modal', event => {
+      const button = event.relatedTarget
+      const photoUrl = button.getAttribute('data-photo')
+      const photoElement = document.getElementById('employeePhoto')
+
+      photoElement.src = photoUrl
+    })
+
+    // Function to download visible content as CSV
+    function downloadCSV() {
+      const table = document.querySelector('table');
+      const rows = table.querySelectorAll('tr');
+      let csvContent = '';
+
+      // Add header row to CSV content
+      const headerRow = rows[0];
+      const headerCells = headerRow.querySelectorAll('th');
+      let headerData = '';
+      headerCells.forEach((cell, cellIndex) => {
+        // Skip the "Photo" column header (index 7)
+        if (cellIndex !== 7) {
+          headerData += cell.innerText + ',';
+        }
+      });
+      headerData = headerData.slice(0, -1); // Remove trailing comma
+      csvContent += headerData + '\n';
+
+      // Loop through each row (excluding the photo column and skipping header)
+      rows.forEach((row, index) => {
+        if (index === 0) return; // Skip the header row
+
+        const cells = row.querySelectorAll('td');
+        let rowData = '';
+
+        // Skip the photo column (7th column, index 7)
+        cells.forEach((cell, cellIndex) => {
+          if (cellIndex !== 7) {
+            rowData += cell.innerText + ',';
+          }
+        });
+        rowData = rowData.slice(0, -1); // Remove trailing comma
+        csvContent += rowData + '\n';
+      });
+
+      // Download the CSV file
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'employee_data.csv';
+      link.click();
+    }
+
+  style.
+    // Ensure the footer stays fixed at the bottom
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;  // Ensures the body height takes the full screen
+    }
+
+    .main-content {
+      flex: 1;
+    }
+
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background-color: #343a40;  // Adjust the background color to match your theme
+    }
+
+    // Make sure the footer content is centered and visually appealing
+    footer p {
+      margin: 0;
+      padding: 10px;
+    }
+
+    .btn-link {
+      text-decoration: none;
+      color: #007bff;
+    }
+
+    .btn-link:hover {
+      text-decoration: underline;
+    }
+
+    // Float the "Back to Reports" button to the left and "Print" and "Download CSV" to the right
+    .float-start {
+      float: left;
+    }
+
+    .float-end {
+      float: right;
+    }
+
+    // Container for the button links to ensure proper spacing
+    .main-content div.text-center.mt-4 {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .main-content div.text-center.mt-4 a {
+      margin-right: 10px; // Add some space between the links
+    }
