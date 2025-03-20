@@ -215,25 +215,68 @@ app.get("/logout", (request, response) => {
 
 //register
 app.post("/register", async (request, response) => {
-  const { fname, lname, employee_id, password } = request.body;
+  const { fname, lname, employee_id, password, role } = request.body;
+
+  // Ensure all required fields are provided
   if (!fname || !lname || !employee_id || !password)
     return response.send("All fields are required");
 
+  // Default role to 'employee' if not provided
+  const userRole = role || "employee";
+
+  // Hash the password before saving it to the database
   const hashedPassword = await bcrypt.hash(password, 10);
+
   const db = await connection();
+
+  // Check if the employee ID already exists in the database
   const userExists = await db.collection("users").findOne({ employee_id });
 
+  // If user already exists, return an error
   if (userExists) return response.send("Employee ID already exists");
 
-  let newUser = { fname, lname, employee_id, password: hashedPassword };
+  // Create the new user object, including the role
+  let newUser = {
+    fname,
+    lname,
+    employee_id,
+    password: hashedPassword,
+    role: userRole,
+  };
+
   try {
+    // Insert the new user into the database
     await db.collection("users").insertOne(newUser);
+
+    // Redirect to login page after successful registration
     response.redirect("/login");
   } catch (err) {
+    // Handle any errors that occur during registration
     console.error("Error during registration:", err);
     response.send("There was an error during registration.");
   }
 });
+
+// app.post("/register", async (request, response) => {
+//   const { fname, lname, employee_id, password } = request.body;
+//   if (!fname || !lname || !employee_id || !password)
+//     return response.send("All fields are required");
+
+//   const hashedPassword = await bcrypt.hash(password, 10);
+//   const db = await connection();
+//   const userExists = await db.collection("users").findOne({ employee_id });
+
+//   if (userExists) return response.send("Employee ID already exists");
+
+//   let newUser = { fname, lname, employee_id, password: hashedPassword };
+//   try {
+//     await db.collection("users").insertOne(newUser);
+//     response.redirect("/login");
+//   } catch (err) {
+//     console.error("Error during registration:", err);
+//     response.send("There was an error during registration.");
+//   }
+// });
 
 // change password
 app.post("/profile/change-password", async (request, response) => {
@@ -291,16 +334,44 @@ app.post("/login", async (request, response) => {
   const db = await connection();
   const user = await db.collection("users").findOne({ employee_id });
 
+  // Check if the user exists and the password is correct
   if (!user || !(await bcrypt.compare(password, user.password)))
     return response.send("Invalid Employee ID or Password");
 
+  // Store user details and role in the session
   request.session.user = {
     employee_id: user.employee_id,
     fname: user.fname,
     lname: user.lname,
+    role: user.role, // Store the role (admin or employee)
   };
-  response.redirect("/dashboard");
+
+  // Redirect to dashboard based on the role
+  if (user.role === "admin") {
+    response.redirect("/reports"); // Admin goes to reports page
+  } else {
+    response.redirect("/dashboard"); // Employees go to dashboard
+  }
 });
+
+// app.post("/login", async (request, response) => {
+//   const { employee_id, password } = request.body;
+//   if (!employee_id || !password)
+//     return response.send("Employee ID and Password are required");
+
+//   const db = await connection();
+//   const user = await db.collection("users").findOne({ employee_id });
+
+//   if (!user || !(await bcrypt.compare(password, user.password)))
+//     return response.send("Invalid Employee ID or Password");
+
+//   request.session.user = {
+//     employee_id: user.employee_id,
+//     fname: user.fname,
+//     lname: user.lname,
+//   };
+//   response.redirect("/dashboard");
+// });
 
 // Edit Profile
 app.get("/profile/edit", async (request, response) => {
@@ -453,7 +524,83 @@ app.post("/profile/edit", async (request, response) => {
   }
 });
 
-// // clock in
+// Reports
+app.get("/reports", async (request, response) => {
+  // Check if user is logged in and has admin privileges
+  if (!request.session.user || request.session.user.role !== "admin") {
+    return response.redirect("/login"); // Redirect to login if not an admin
+  }
+
+  try {
+    const db = await connection();
+
+    // Fetch all work logs
+    const workLogs = await db.collection("work_hours").find().toArray();
+
+    // Group work logs by user and calculate total hours
+    let totalHoursByUser = {};
+    workLogs.forEach((log) => {
+      if (!totalHoursByUser[log.employee_id]) {
+        totalHoursByUser[log.employee_id] = 0;
+      }
+      if (log.clockIn && log.clockOut) {
+        totalHoursByUser[log.employee_id] +=
+          (new Date(log.clockOut) - new Date(log.clockIn)) / 3600000; // Convert ms to hours
+      }
+    });
+
+    // Format the report data for rendering
+    let formattedReport = Object.keys(totalHoursByUser).map((id) => ({
+      employee_id: id,
+      total_hours: totalHoursByUser[id].toFixed(2) + " hrs",
+    }));
+
+    // Render the reports view with the report data
+    response.render("reports", {
+      title: "Work Reports",
+      reports: formattedReport,
+    });
+  } catch (err) {
+    console.error("Error fetching work logs:", err);
+    response.send("An error occurred while fetching the work logs.");
+  }
+});
+
+// app.get("/reports", async (request, response) => {
+//   if (!request.session.user || request.session.user.role !== "admin") {
+//     return response.redirect("/login");
+//   }
+
+//   const db = await connection();
+
+//   // Fetch all work logs
+//   const workLogs = await db.collection("work_hours").find().toArray();
+
+//   // Group work logs by user and calculate total hours
+//   let totalHoursByUser = {};
+//   workLogs.forEach((log) => {
+//     if (!totalHoursByUser[log.employee_id]) {
+//       totalHoursByUser[log.employee_id] = 0;
+//     }
+//     if (log.clockIn && log.clockOut) {
+//       totalHoursByUser[log.employee_id] +=
+//         (new Date(log.clockOut) - new Date(log.clockIn)) / 3600000; // Convert ms to hours
+//     }
+//   });
+
+//   // Convert to a format usable in the view
+//   let formattedReport = Object.keys(totalHoursByUser).map((id) => ({
+//     employee_id: id,
+//     total_hours: totalHoursByUser[id].toFixed(2) + " hrs",
+//   }));
+
+//   response.render("reports", {
+//     title: "Work Reports",
+//     reports: formattedReport,
+//   });
+// });
+
+// clock in
 app.post("/clockin", async (request, response) => {
   if (!request.session.user) return response.redirect("/login");
 

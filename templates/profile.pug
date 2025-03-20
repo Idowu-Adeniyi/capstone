@@ -101,19 +101,6 @@ html
             input(type="file" name="photoUpload" id="photoUpload" accept="image/*")
             button.btn.btn-primary.mt-3(type="submit") Save Photo 
           
-            //- if message 
-            //-     .success-message(id="successMessage")
-            //-         | #{message}
-            //- script. 
-            //-   setTimeout(function(){
-            //-     var successMessage = document.getElementById("successMessage");
-            //-     if (successMessage){
-            //-         successMessage.style.display = "none";
-            //-     }
-            //-   }, 5000);
-                  
-          
-
           .mt-4
             h3 #{user.fname} #{user.lname}  
             p Employee ID: #{user.employee_id}  
@@ -151,8 +138,6 @@ html
               label(for="confirmPassword") Confirm New Password:
               input.form-control(type="password" id="confirmPassword" name="confirmPassword" required minlength="4" placeholder="Confirm new password")
 
-            //- if message
-            //-   p(class=messageType) #{message}
             button.btn.btn-danger.mt-4.w-100(type="submit") Update Password  
 
     footer.footer.bg-dark.text-light.text-center.py-3
@@ -169,3 +154,9 @@ html
           reader.readAsDataURL(file);
         }
       });
+
+
+
+
+
+

@@ -35,11 +35,24 @@ async function connection() {
   return db;
 }
 
+// Register user with a default role of 'employee'
 async function registerUser(userData) {
   const db = await connection();
   const usersCollection = db.collection("users");
+
+  // If no role is specified, default to 'employee'
+  if (!userData.role) {
+    userData.role = "employee";
+  }
+
   await usersCollection.insertOne(userData);
 }
+
+// async function registerUser(userData) {
+//   const db = await connection();
+//   const usersCollection = db.collection("users");
+//   await usersCollection.insertOne(userData);
+// }
 
 async function findUserByCredentials(employee_id, password) {
   const db = await connection();

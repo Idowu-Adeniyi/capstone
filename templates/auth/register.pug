@@ -1,5 +1,31 @@
-extends ../layout
+//- extends ../layout
 
+
+//- block layout-content
+//-   div.container
+//-     div.row.justify-content-center
+//-       div.col-md-6
+//-         div.card
+//-           div.card-body
+//-             h2.card-title.text-center Register
+//-             form(method="POST", action="/register")
+//-               div.form-group
+//-                 label(for="fname") First Name:
+//-                 input(type="text", id="fname", name="fname", class="form-control", required)
+//-               div.form-group
+//-                 label(for="lname") Last Name:
+//-                 input(type="text", id="lname", name="lname", class="form-control", required)  
+//-               div.form-group
+//-                 label(for="employee_id") Employee ID:
+//-                 input(type="text", id="employee_id", name="employee_id", class="form-control", required)
+//-               div.form-group
+//-                 label(for="password") Password:
+//-                 input(type="password", id="password", name="password", class="form-control", required)
+//-               button.btn.btn-primary.btn-block(type="submit") Register
+
+
+
+extends ../layout
 
 block layout-content
   div.container
@@ -14,11 +40,16 @@ block layout-content
                 input(type="text", id="fname", name="fname", class="form-control", required)
               div.form-group
                 label(for="lname") Last Name:
-                input(type="text", id="lname", name="lname", class="form-control", required)  
+                input(type="text", id="lname", name="lname", class="form-control", required)
               div.form-group
                 label(for="employee_id") Employee ID:
                 input(type="text", id="employee_id", name="employee_id", class="form-control", required)
               div.form-group
                 label(for="password") Password:
                 input(type="password", id="password", name="password", class="form-control", required)
+              div.form-group
+                label(for="role") Role:
+                select(id="role", name="role" class="form-control")
+                  option(value="employee" selected Employee) Employee
+                  option(value="admin") Admin
               button.btn.btn-primary.btn-block(type="submit") Register
