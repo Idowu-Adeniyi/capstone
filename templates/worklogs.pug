@@ -5,10 +5,72 @@ html
     link(rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css")
     script(src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js")
     script(src="/js/filterLogs.js" defer) // ✅ JavaScript for filtering logs by date
+    link(rel="stylesheet" href="/css/styles.css")
+    link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css")
+
+    style.
+      body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+      }
+
+      nav.navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        background-color: #343a40;
+        padding: 10px 0;
+      }
+
+      .main-content {
+        margin-top: 70px;
+        flex-grow: 1;
+        overflow-y: auto;
+        padding-bottom: 100px; /* More space to prevent footer overlap */
+        padding-top: 20px;
+      }
+
+      footer.footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #343a40;
+        padding: 10px 0;
+        color: #fff;
+        text-align: center;
+        z-index: 1000;
+      }
 
   body
-    .container.mt-4
-      h1 Work Logs for #{userName}
+    // Header/Navbar
+    nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
+      .container-fluid
+        a.navbar-brand(href="/") TimeTracker
+
+        button.navbar-toggler(type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav")
+          span.navbar-toggler-icon
+
+        #navbarNav.collapse.navbar-collapse
+          ul.navbar-nav.ms-auto
+            li.nav-item
+              a.nav-link(href="/") Home
+            li.nav-item
+              a.nav-link(href="/profile") Profile
+            li.nav-item
+              a.nav-link.active(href="/worklogs") Worklogs
+            li.nav-item
+              a.nav-link(href="/reports") Reports
+            li.nav-item
+              a.nav-link(href="/logout") Logout
+
+    // Main content section
+    .main-content.container.mt-5
+      h1.text-center Work Logs for #{userName}
 
       // Date Filter
       label(for="dateFilter") Search by Date:
@@ -39,6 +101,11 @@ html
       // Back Button
       a.btn.btn-secondary.mt-3(href="/dashboard") Back to Dashboard
 
+    // Footer
+    footer.footer.bg-dark.text-light.text-center.py-3
+      p &copy; 2025 TimeTracker. All rights reserved.
+
+    // JavaScript for filtering logs by date
     script.
       function filterLogs() {
         var filterDate = document.getElementById('dateFilter').value;
@@ -67,4 +134,3 @@ html
           }
         });
       }
-    script

@@ -600,6 +600,74 @@ app.get("/reports", async (request, response) => {
 //   });
 // });
 
+// Edit employee
+app.post("/editEmployee", async (request, response) => {
+  if (!request.session.user || request.session.user.role !== "admin") {
+    return response.redirect("/login"); // Ensure admin privileges
+  }
+
+  const { employee_id, name, role, email } = request.body;
+
+  try {
+    const db = await connection();
+
+    // Find the employee by ID and update their details
+    const updateResult = await db
+      .collection("employees")
+      .updateOne(
+        { employee_id: employee_id },
+        { $set: { name: name, role: role, email: email } }
+      );
+
+    if (updateResult.modifiedCount > 0) {
+      response.send("Employee updated successfully.");
+    } else {
+      response.send("No changes made or employee not found.");
+    }
+  } catch (err) {
+    console.error("Error updating employee:", err);
+    response.send("An error occurred while updating the employee.");
+  }
+});
+
+// Reset Clock
+app.post("/resetClock", async (request, response) => {
+  if (!request.session.user || request.session.user.role !== "admin") {
+    return response.redirect("/login"); // Ensure admin privileges
+  }
+
+  const { employee_id, date, newClockIn, newClockOut } = request.body;
+
+  try {
+    const db = await connection();
+
+    // Find the work log for this employee on the specified date
+    const workLog = await db.collection("work_hours").findOne({
+      employee_id: employee_id,
+      dateClockIn: date, // You can modify this filter based on your date format
+    });
+
+    if (workLog) {
+      // Update the clock-in and clock-out times for that specific log
+      await db
+        .collection("work_hours")
+        .updateOne(
+          { _id: workLog._id },
+          { $set: { clockIn: newClockIn, clockOut: newClockOut } }
+        );
+
+      response.send("Clock reset successfully.");
+    } else {
+      response.send(
+        "No work log found for this employee on the specified date."
+      );
+    }
+  } catch (err) {
+    console.error("Error resetting clock:", err);
+    response.send("An error occurred while resetting the clock.");
+  }
+});
+
 // clock in
 app.post("/clockin", async (request, response) => {
   if (!request.session.user) return response.redirect("/login");

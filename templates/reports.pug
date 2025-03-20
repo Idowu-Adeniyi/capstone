@@ -1,53 +1,3 @@
-//- extends layout
-
-//- block content
-//-   h1 Work Reports
-  
-//-   form(action="/reports" method="GET")
-//-     label(for="employee_id") Filter by Employee ID:
-//-     input(type="text" name="employee_id" placeholder="Enter Employee ID")
-//-     label(for="date_from") From:
-//-     input(type="date" name="date_from")
-//-     label(for="date_to") To:
-//-     input(type="date" name="date_to")
-//-     button(type="submit") Filter
-  
-//-   table
-//-     thead
-//-       tr
-//-         th Employee ID
-//-         th Total Hours Worked
-//-     tbody
-//-       each report in reports
-//-         tr
-//-           td= report.employee_id
-//-           td= report.total_hours
-  
-//-   hr
-  
-//-   h2 Export Work Logs
-//-   a(href="/export-csv") Download CSV
-  
-//-   hr
-  
-//-   h2 Manage Users
-//-   form(action="/reset-clock" method="POST")
-//-     label(for="reset_employee_id") Reset Clock for Employee ID:
-//-     input(type="text" name="reset_employee_id" required)
-//-     button(type="submit") Reset Clock
-  
-//-   form(action="/add-user" method="POST")
-//-     label(for="new_employee_id") Add New Employee ID:
-//-     input(type="text" name="new_employee_id" required)
-//-     button(type="submit") Add User
-  
-//-   form(action="/delete-user" method="POST")
-//-     label(for="delete_employee_id") Delete Employee ID:
-//-     input(type="text" name="delete_employee_id" required)
-//-     button(type="submit") Delete User
-
-
-
 doctype html
 html
   head
@@ -95,6 +45,26 @@ html
         z-index: 1000;
       }
 
+      fieldset {
+        border: 2px solid #ccc;
+        padding: 20px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+      }
+
+      fieldset legend {
+        font-size: 1.2em;
+        font-weight: bold;
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      .form-group label {
+        margin-bottom: 5px;
+      }
+
   body
     nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
       .container-fluid
@@ -118,6 +88,7 @@ html
 
     .main-content.container.mt-5
       h1.text-center Work Reports
+      p
 
       form(action="/reports" method="GET")
         label(for="employee_id") Filter by Employee ID:
@@ -127,16 +98,23 @@ html
         label(for="date_to") To:
         input(type="date" name="date_to")
         button(type="submit") Filter
+      p
+
+      // Display All Employees Button
+      form(action="/get-all-employees" method="GET")
+        button(type="submit") Get All Employees
 
       table.table.table-bordered.mt-4
         thead
           tr
             th Employee ID
+            th Employee Name
             th Total Hours Worked
         tbody
           each report in reports
             tr
               td= report.employee_id
+              td= report.employee_name 
               td= report.total_hours
 
       hr
@@ -147,20 +125,50 @@ html
       hr
 
       h2 Manage Users
+      // Reset Work Log for Specific Date and Employee
       form(action="/reset-clock" method="POST")
-        label(for="reset_employee_id") Reset Clock for Employee ID:
-        input(type="text" name="reset_employee_id" required)
-        button(type="submit") Reset Clock
+        label(for="reset_employee_id") Reset Work Log for Employee ID:
+        input(type="text" name="reset_employee_id" required placeholder="Enter Employee ID")
 
-      form(action="/add-user" method="POST")
-        label(for="new_employee_id") Add New Employee ID:
-        input(type="text" name="new_employee_id" required)
-        button(type="submit") Add User
+        label(for="reset_date") For Date:
+        input(type="date" name="reset_date" required)
 
+        label(for="start_time") Start Time:
+        input(type="time" name="start_time" required)
+
+        label(for="end_time") End Time:
+        input(type="time" name="end_time" required)
+
+        button(type="submit") Reset Work Log
+        p
+
+      // Edit Employee Details (Name, Role, etc.)
+      form(action="/edit-user" method="POST")
+        fieldset
+          legend Edit Employee Details
+
+          .form-group
+            input(type="text" name="edit_employee_id" required placeholder="Enter Employee ID" class="form-control")
+
+          .form-group
+            input(type="text" name="edit_first_name" required placeholder="Enter First Name" class="form-control")
+
+          .form-group
+            input(type="text" name="edit_last_name" required placeholder="Enter Last Name" class="form-control")
+
+          .form-group
+            select(name="edit_employee_role" required class="form-control") 
+              option(value="admin") Admin 
+              option(value="employee") Employee 
+
+        button(type="submit" class="btn btn-primary") Update Employee Details
+        p
+
+      // Delete or Deactivate Employee
       form(action="/delete-user" method="POST")
-        label(for="delete_employee_id") Delete Employee ID:
-        input(type="text" name="delete_employee_id" required)
-        button(type="submit") Delete User
+        label(for="delete_employee_id") Delete or Deactivate Employee ID:
+        input(type="text" name="delete_employee_id" required placeholder="Enter Employee ID")
+        button(type="submit") Delete/Deactivate User
 
     footer.footer.bg-dark.text-light.text-center.py-3
       p &copy; 2025 TimeTracker. All rights reserved.
