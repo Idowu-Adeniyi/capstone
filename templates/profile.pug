@@ -153,7 +153,7 @@ html
 
           form(action="/profile/upload-photo" method="POST" enctype="multipart/form-data")
             input(type="file" name="photoUpload" id="photoUpload" accept="image/*")
-            button.btn.btn-primary.mt-3.btn-save(type="submit") Save Photo
+            button.btn.btn-success.mt-3.btn-save(type="submit") Save Photo
             p
 
         hr
@@ -181,7 +181,7 @@ html
                 td #{user.address || "No address available"}
 
             form(action="/profile/edit" method="GET")
-              button.btn.btn-warning.mt-1.w-100(type="submit") Edit Profile
+              button.btn.btn-primary.mt-1.w-100(type="submit") Edit Profile
 
           hr
 
@@ -201,7 +201,7 @@ html
               .form-group
                 label(for="confirmPassword") Confirm New Password:
                 input.form-control(type="password" id="confirmPassword" name="confirmPassword" required minlength="4" placeholder="Confirm new password")
-              button.btn.btn-danger.mt-1.w-100(type="submit") Update Password
+              button.btn.btn-warning.mt-1.w-100(type="submit") Update Password
 
     footer.footer.bg-dark.text-light.text-center.py-3
       p &copy; 2025 TimeTracker. All rights reserved.
