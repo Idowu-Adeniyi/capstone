@@ -104,7 +104,7 @@ html
       form(action="/get-all-employees" method="GET")
         button(type="submit") Get All Employees
 
-      table.table.table-bordered.mt-4
+      table.table.table-bordered.mt-4#table
         thead
           tr
             th Employee ID
@@ -116,6 +116,15 @@ html
               td= report.employee_id
               td= report.employee_name 
               td= report.total_hours
+          
+      if allReports.length > 6
+        p 
+        if reports.length === 6
+          form(action="/reports/all" method="GET")
+            button(type="submit") View All Reports
+        else 
+          form(action="/reports" method="GET")
+            button(type="submit") View Less Reports
 
       hr
 
@@ -166,9 +175,13 @@ html
 
       // Delete or Deactivate Employee
       form(action="/delete-user" method="POST")
-        label(for="delete_employee_id") Delete or Deactivate Employee ID:
+        label(for="delete_employee_id") Delete Employee ID:
         input(type="text" name="delete_employee_id" required placeholder="Enter Employee ID")
-        button(type="submit") Delete/Deactivate User
+        button(type="submit") Delete Employee
+        if message 
+          .alert.alert-success#message 
+            | #{message}
+       
 
     footer.footer.bg-dark.text-light.text-center.py-3
       p &copy; 2025 TimeTracker. All rights reserved.
@@ -180,3 +193,12 @@ html
             successMessage.style.display = "none";
         }
       }, 5000);
+
+
+    script.
+      setTimeout(function(){
+        var messageElement = document.getElementById("message");
+        if(messageElement){
+           messageElement.style.display = "none";
+        }
+      }, 7000);
