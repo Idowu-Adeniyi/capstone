@@ -1,0 +1,137 @@
+doctype html
+html
+  head
+    title= title
+    link(rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css")
+    script(src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js")
+    link(rel="stylesheet" href="/css/styles.css")
+    link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css")
+
+    style.
+      body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+      }
+
+      nav.navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        background-color: #343a40;
+        padding: 10px 0;
+      }
+
+      .main-content {
+        margin-top: 70px;
+        flex-grow: 1;
+        padding-top: 20px;
+        padding-bottom: 100px;
+      }
+
+      footer.footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #343a40;
+        padding: 10px 0;
+        color: #fff;
+        text-align: center;
+        z-index: 1000;
+      }
+
+      button{
+        margin-top: 20px;
+        width: 100%;
+      }
+
+      input{
+        margin-bottom: 10px;
+      }
+
+      footer a{
+        text-decoration: none;
+        color: #ffffff8c!important;
+        
+      }
+
+  body
+    // HEADER (Styled like profile.pug, but only Home and Register links)
+    nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
+      .container-fluid
+        a.navbar-brand(href="/") TimeTracker
+
+        button.navbar-toggler(type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav")
+          span.navbar-toggler-icon
+
+        #navbarNav.collapse.navbar-collapse
+          ul.navbar-nav.ms-auto
+            li.nav-item
+              a.nav-link(href="/") Home
+            li.nav-item
+              a.nav-link(href="/privacy-policy") Privacy Policy
+            li.nav-item
+              a.nav-link(href="/terms-of-use") Terms Of Use
+            li.nav-item
+              a.nav-link(href="/copyright") Copyright
+
+    // MAIN CONTENT
+    .container.mt-5
+      .row.justify-content-center
+        .col-md-8
+        p
+          h1.text-center Terms of Use
+          p.text-muted Effective Date: 01/30/2025
+          p.text-muted Last Updated: 01/30/2025
+
+          h2 1. Agreement to Terms
+          p By accessing and using this work hour tracking system ("Service"), you agree to comply with these Terms of Use. If you do not agree, you may not use the Service.
+
+          h2 2. User Accounts
+          ul
+            li You must provide accurate information when registering an account.
+            li You are responsible for maintaining the security of your account credentials.
+            li Unauthorized access to another user's account is strictly prohibited.
+
+          h2 3. Acceptable Use
+          p Users agree not to:
+          ul
+            li Use the system for unlawful or fraudulent activities.
+            li Attempt to hack, disrupt, or overload the system.
+            li Share login credentials or unauthorized access to third parties.
+
+          h2 4. Data Accuracy and Liability
+          ul
+            li We strive for accurate data logging but do not guarantee error-free operation.
+            li Users are responsible for reviewing and verifying their work logs.
+            li Work logs are used for employee time tracking and reporting.
+            li Data handling complies with our Privacy Policy.
+
+          h2 5. Termination
+          p We reserve the right to terminate accounts that violate these terms or abuse the system.
+
+          h2 6. Limitation of Liability
+          p To the maximum extent permitted by law, we are not liable for any data loss, security breaches, or downtime related to the Service.
+
+          h2 7. Modifications to Terms
+          p We may update these Terms of Use at any time. Continued use of the Service after changes constitutes acceptance of the new terms.
+
+          h2 8. Contact Information
+          p For questions regarding these Terms, contact us at 
+            a(href="mailto:adeniyi.idowu50@gmail.com") adeniyi.idowu50@gmail.com
+
+    // FOOTER (Styled like profile.pug)
+    footer.footer.bg-dark.text-light.text-center.py-3
+      p &copy; 2025 TimeTracker. All rights reserved.
+      br
+      a(href="/privacy-policy", class="text-light") Privacy Policy 
+      |    | 
+      a(href="/terms-of-use", class="text-light") Terms Of Use 
+      |    |  
+      a(href="/copyright", class="text-light") Copyright 
+
+

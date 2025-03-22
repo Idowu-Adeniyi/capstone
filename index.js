@@ -60,6 +60,21 @@ app.get("/register", (request, response) => {
   response.render("auth/register", { title: "Register" });
 });
 
+// get privacy page
+app.get("/privacy-policy", (request, response) => {
+  response.render("privacy-policy");
+});
+
+//get terms of use page
+app.get("/terms-of-use", (request, response) => {
+  response.render("terms-of-use");
+});
+
+//get copyright of use page
+app.get("/copyright", (request, response) => {
+  response.render("copyright");
+});
+
 // get worklogs
 app.get("/worklogs", async (request, response) => {
   if (!request.session.user) return response.redirect("/login");

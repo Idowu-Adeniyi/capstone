@@ -1,0 +1,142 @@
+doctype html
+html
+  head
+    title= title
+    link(rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css")
+    script(src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js")
+    link(rel="stylesheet" href="/css/styles.css")
+    link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css")
+
+    style.
+      body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+      }
+
+      nav.navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        background-color: #343a40;
+        padding: 10px 0;
+      }
+
+      .main-content {
+        margin-top: 70px;
+        flex-grow: 1;
+        padding-top: 20px;
+        padding-bottom: 100px;
+      }
+
+      footer.footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #343a40;
+        padding: 10px 0;
+        color: #fff;
+        text-align: center;
+        z-index: 1000;
+      }
+
+      button{
+        margin-top: 20px;
+        width: 100%;
+      }
+
+      input{
+        margin-bottom: 10px;
+      }
+
+      footer a{
+        text-decoration: none;
+        color: #ffffff8c!important;
+        
+      }
+
+  body
+    // HEADER (Styled like profile.pug, but only Home and Register links)
+    nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
+      .container-fluid
+        a.navbar-brand(href="/") TimeTracker
+
+        button.navbar-toggler(type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav")
+          span.navbar-toggler-icon
+
+        #navbarNav.collapse.navbar-collapse
+          ul.navbar-nav.ms-auto
+            li.nav-item
+              a.nav-link(href="/") Home
+            li.nav-item
+              a.nav-link(href="/privacy-policy") Privacy Policy
+            li.nav-item
+              a.nav-link(href="/terms-of-use") Terms Of Use
+            li.nav-item
+              a.nav-link(href="/copyright") Copyright
+
+    // MAIN CONTENT
+    .container.mt-5
+      .row.justify-content-center
+        .col-md-8
+        p
+          h1.text-center Privacy Policy
+          p.text-muted Effective Date: 30/01/2025
+          p.text-muted Last Updated: 30/01/2025
+
+          h2 1. Introduction
+          p Welcome to Work Hour Tracking System ("we," "our," or "us"). This Privacy Policy outlines how we collect, use, disclose, and protect your personal information when you use our work hour tracking system ("Service"). By using this Service, you agree to the terms outlined in this policy.
+
+          h2 2. Information We Collect
+          p We collect the following types of information:
+          ul
+            li Personal Information: Name, email, and user ID.
+            li Work Logs: Clock-in/out timestamps, total work hours, and optional categories.
+            li Device and Usage Data: IP address, browser type, and system logs for security monitoring.
+
+          h2 3. How We Use Your Information
+          p We use your information to:
+          ul
+            li Provide and maintain the Service.
+            li Generate reports of work hours.
+            li Improve user experience and system performance.
+            li Ensure compliance with company policies and regulations.
+
+          h2 4. Data Sharing and Protection
+          ul
+            li We do not sell or share your personal information with third parties except as required by law.
+            li Data is encrypted in transit and stored securely on Hosting Provider.
+            li Only authorized personnel can access sensitive data.
+
+          h2 5. Data Retention
+          p We retain work logs for a certain period unless required by law or requested for deletion by the user.
+
+          h2 6. Your Rights
+          p You have the right to:
+          ul
+            li Access, update, or delete your personal data.
+            li Request a copy of your work log history.
+            li Withdraw consent for data processing.
+
+          h2 7. Changes to This Policy
+          p We may update this Privacy Policy. Changes will be posted on this page with an updated effective date.
+
+          h2 8. Contact Us
+          p For questions or concerns about this Privacy Policy, contact us at 
+            a(href="mailto:adeniyi.idowu50@gmail.com") adeniyi.idowu50@gmail.com
+
+    // FOOTER (Styled like profile.pug)
+    footer.footer.bg-dark.text-light.text-center.py-3
+      p &copy; 2025 TimeTracker. All rights reserved.
+      br
+      a(href="/privacy-policy", class="text-light") Privacy Policy 
+      |    | 
+      a(href="/terms-of-use", class="text-light") Terms Of Use 
+      |    |  
+      a(href="/copyright", class="text-light") Copyright 
+
+
