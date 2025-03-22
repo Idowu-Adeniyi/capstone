@@ -7,12 +7,14 @@ const multer = require("multer");
 const fs = require("fs");
 const router = express.Router();
 const userModel = require("./models/userModel");
+const nodemailer = require("nodemailer");
+require("dotenv").config();
 
 const dbUrl = "mongodb://127.0.0.1:27017/";
+const port = process.env.PORT || "8888";
 const client = new MongoClient(dbUrl);
 
 const app = express();
-const port = process.env.PORT || "8888";
 
 app.set("views", path.join(__dirname, "templates"));
 app.set("view engine", "pug");
@@ -73,6 +75,52 @@ app.get("/terms-of-use", (request, response) => {
 //get copyright of use page
 app.get("/copyright", (request, response) => {
   response.render("copyright");
+});
+
+// contact us
+// GET Contact Us Page (Displays the form)
+app.get("/contact-us", (request, response) => {
+  const success = request.query.success === "true";
+  response.render("contact-us", { success });
+});
+
+// POST Contact Us Form Submission (Handles form data)
+app.post("/contact-us", (request, response) => {
+  const { name, email, message } = request.body;
+
+  // Configure the email transporter
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+
+  //  Email options
+  const mailOptions = {
+    from: email, // Sender (User's email)
+    to: "adeniyi.idowu50@gmail.com", // Admin email
+    subject: "New Contact Us Message",
+    text: `You received a new message from:
+    
+    Name: ${name}
+    Email: ${email}
+    Message: ${message}`,
+  };
+
+  // Send email
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.log("Email Error:", error);
+      return response.status(500).send("Error sending email. Try again.");
+    }
+
+    console.log("Email Sent:", info.response);
+
+    // Redirect with success message
+    response.redirect("/contact-us?success=true");
+  });
 });
 
 // get worklogs
@@ -740,7 +788,7 @@ app.post("/delete-user", async (request, response) => {
     // Delete user from 'users' collection
     await db.collection("users").deleteOne({ employee_id: delete_employee_id });
 
-    // Delete user's work logs from 'work_hours' collection
+    // Delete user's work logs from 'work_hours' collections
     await db
       .collection("work_hours")
       .deleteMany({ employee_id: delete_employee_id });
