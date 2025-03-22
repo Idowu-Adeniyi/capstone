@@ -1,14 +1,84 @@
-extends layout
+doctype html
+html
+  head
+    title= title
+    link(rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css")
+    script(src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js")
+    link(rel="stylesheet" href="/css/styles.css")
+    link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css")
 
-block layout-content
-  div.container
-    div.row.justify-content-center
-      div.col-md-6.text-center
+  body
+    // HEADER
+    nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
+      .container-fluid
+        a.navbar-brand(href="/") TimeTracker
+
+        button.navbar-toggler(type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav")
+          span.navbar-toggler-icon(aria-hidden="true")
+
+        #navbarNav.collapse.navbar-collapse
+          ul.navbar-nav.ms-auto
+            li.nav-item
+              a.nav-link.active(href="/") Home
+            if userLoggedIn
+              li.nav-item
+                a.nav-link(href="/profile") Profile
+              li.nav-item
+                a.nav-link(href="/worklogs") Worklogs
+              li.nav-item
+                a.nav-link(href="/reports") Reports
+              li.nav-item
+                a.nav-link(href="/logout") Logout
+            else
+              li.nav-item
+                a.nav-link(href="/login") Login
+
+    // MAIN CONTENT
+    .container
+      // Hero Section with Image Slider
+      .hero
+        .carousel.slide#heroCarousel(data-bs-ride="carousel")
+          .carousel-inner
+            .carousel-item.active
+              img.hero-img(src="/images/slide1.png" class="d-block w-100" alt="Work Productivity")
+            .carousel-item
+              img.hero-img(src="/images/slide2.png" class="d-block w-100" alt="Team Collaboration")
+            .carousel-item
+              img.hero-img(src="/images/slide3.png" class="d-block w-100" alt="Efficient Time Management")
+
+          // Carousel controls
+          button.carousel-control-prev(type="button" data-bs-target="#heroCarousel" data-bs-slide="prev")
+            span.carousel-control-prev-icon(aria-hidden="true")
+          button.carousel-control-next(type="button" data-bs-target="#heroCarousel" data-bs-slide="next")
+            span.carousel-control-next-icon(aria-hidden="true")
+
+      // Welcome Content
+      .text-center.mt-5
         h1 Welcome to Work Hour Tracker
         p Track your shifts easily with our simple clock-in system.
+
+      // Clock In/Out Buttons
+      .text-center.mt-4
         if userLoggedIn
-          div.clock-buttons
-            a.btn.btn-success(href="/clock-in") Clock In
-            a.btn.btn-danger(href="/clock-out") Clock Out
+          if userClockedIn
+            // Display Clock Out button if the user is logged in and clocked in
+            form(action="/clockout", method="POST")
+              button(type="submit", class="btn btn-danger btn-lg") Clock Out
+          else
+            // Display Clock In button if the user is logged in but not clocked in
+            form(action="/clockin", method="POST")
+              button(type="submit", class="btn btn-success btn-lg me-3") Clock In / Clock Out
         else
+          // Prompt user to log in if not logged in
           p Please log in to clock in and clock out.
+          a.btn.btn-primary.btn-lg.mt-3(href="/login") Log In
+
+    // FOOTER
+    footer.footer.bg-dark.text-light.text-center.py-3
+      p &copy; 2025 TimeTracker. All rights reserved.
+
+
+    
+
+
+

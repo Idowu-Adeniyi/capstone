@@ -31,10 +31,21 @@ app.use(
   })
 );
 
+// check home page if logged in remain logged in
 app.get("/", async (request, response) => {
-  let links = await getLinks();
-  response.render("index", { title: "Home", menu: links });
+  let links = await getLinks(); // Your existing logic to get the menu links
+  const userLoggedIn = request.session.user ? true : false; // Check if user is logged in
+  response.render("index", {
+    title: "Home",
+    menu: links,
+    userLoggedIn, // Pass the login state to the template
+  });
 });
+
+// app.get("/", async (request, response) => {
+//   let links = await getLinks();
+//   response.render("index", { title: "Home", menu: links });
+// });
 
 app.get("/about", async (request, response) => {
   let links = await getLinks();
@@ -197,7 +208,7 @@ app.get("/dashboard", async (request, response) => {
   });
 });
 
-// Function to format time duration (HH:MM:SS)
+//Function to format time duration (HH:MM:SS)
 function formatDuration(ms) {
   let seconds = Math.floor(ms / 1000) % 60;
   let minutes = Math.floor(ms / (1000 * 60)) % 60;
