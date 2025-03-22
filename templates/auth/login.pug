@@ -1,17 +1,90 @@
-extends ../layout
+doctype html
+html
+  head
+    title= title
+    link(rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css")
+    script(src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js")
+    link(rel="stylesheet" href="/css/styles.css")
+    link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css")
 
-block layout-content
-  div.container
-    div.row.justify-content-center
-      div.col-md-6
-        div.card
-          div.card-body
-            h2.card-title.text-center Login
-            form(method="POST", action="/login")
-              div.form-group
-                label(for="employee_id") Employee ID:
-                input(type="text", id="employee_id", name="employee_id", class="form-control", required)
-              div.form-group
-                label(for="password") Password:
-                input(type="password", id="password", name="password", class="form-control", required)
-              button.btn.btn-primary.btn-block(type="submit") Login
+    style.
+      body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+      }
+
+      nav.navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        background-color: #343a40;
+        padding: 10px 0;
+      }
+
+      .main-content {
+        margin-top: 70px;
+        flex-grow: 1;
+        padding-top: 20px;
+        padding-bottom: 100px;
+      }
+
+      footer.footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #343a40;
+        padding: 10px 0;
+        color: #fff;
+        text-align: center;
+        z-index: 1000;
+      }
+
+      button{
+        margin-top: 20px;
+        width: 100%;
+      }
+
+      input{
+        margin-bottom: 10px;
+      }
+
+  body
+    // HEADER (Styled like profile.pug, but only Home and Register links)
+    nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
+      .container-fluid
+        a.navbar-brand(href="/") TimeTracker
+
+        button.navbar-toggler(type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav")
+          span.navbar-toggler-icon
+
+        #navbarNav.collapse.navbar-collapse
+          ul.navbar-nav.ms-auto
+            li.nav-item
+              a.nav-link(href="/") Home
+            li.nav-item
+              a.nav-link(href="/register") Register
+
+    // MAIN CONTENT
+    .main-content.container
+      .row.justify-content-center
+        .col-md-6
+          .card
+            .card-body
+              h2.card-title.text-center Login
+              form(method="POST", action="/login")
+                .form-group
+                  label(for="employee_id") Employee ID:
+                  input(type="text", id="employee_id", name="employee_id", class="form-control", required)
+                .form-group
+                  label(for="password") Password:
+                  input(type="password", id="password", name="password", class="form-control", required)
+                button.btn.btn-primary.btn-block(type="submit") Login
+
+    // FOOTER (Styled like profile.pug)
+    footer.footer.bg-dark.text-light.text-center.py-3
+      p &copy; 2025 TimeTracker. All rights reserved.
