@@ -72,6 +72,11 @@ app.get("/terms-of-use", (request, response) => {
   response.render("terms-of-use");
 });
 
+//get about us
+app.get("/about-us", (request, response) => {
+  response.render("about-us");
+});
+
 //get copyright of use page
 app.get("/copyright", (request, response) => {
   response.render("copyright");

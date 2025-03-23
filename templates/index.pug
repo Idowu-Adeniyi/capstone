@@ -7,6 +7,59 @@ html
     link(rel="stylesheet" href="/css/styles.css")
     link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css")
 
+    style.
+      body {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        margin: 0;
+        overflow-y: auto; 
+      }
+
+      nav.navbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1000;
+        background-color: #343a40;
+        padding: 10px 0;
+      }
+
+      .main-content {
+        margin-top: 70px;
+        flex-grow: 1;
+        padding-top: 20px;
+        padding-bottom: 100px;
+      }
+
+      footer.footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: #343a40;
+        padding: 10px 0;
+        color: #fff;
+        text-align: center;
+        z-index: 1000;
+        
+      }
+
+      button{
+        margin-top: 20px;
+        width: 100%;
+      }
+
+      input{
+        margin-bottom: 10px;
+      }
+
+      footer a{
+        text-decoration: none;
+        color: #ffffff8c!important;
+      }
+
   body
     // HEADER
     nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
@@ -30,6 +83,10 @@ html
               li.nav-item
                 a.nav-link(href="/logout") Logout
             else
+              li.nav-item
+                a.nav-link(href="/about-us") About Us
+              li.nav-item
+                a.nav-link(href="/contact-us") Contact Us
               li.nav-item
                 a.nav-link(href="/login") Login
 
@@ -71,6 +128,14 @@ html
     // FOOTER
     footer.footer.bg-dark.text-light.text-center.py-3
       p &copy; 2025 TimeTracker. All rights reserved.
+      br
+      a(href="/privacy-policy", class="text-light") Privacy Policy 
+      |    |  
+      a(href="/privacy-policy", class="text-light") Privacy Policy 
+      |    | 
+      a(href="/copyright", class="text-light") Copyright 
+      |    |    
+      a(href="/contact-us", class="text-light") Contact Us
 
 
 

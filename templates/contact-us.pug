@@ -72,7 +72,9 @@ html
             li.nav-item
               a.nav-link(href="/") Home
             li.nav-item
-              a.nav-link(href="/register") Register
+              a.nav-link(href="/about-us") About Us
+            li.nav-item
+              a.nav-link(href="/contact-us") Contact Us
 
     // MAIN CONTENT
     .main-content.container
@@ -101,6 +103,7 @@ html
                 if success
                     #successMessage.alert.alert-success 
                         | Thank you for contacting us! We'll get back to you soon.
+                
 
     // FOOTER
     footer.footer.bg-dark.text-light.text-center.py-3
@@ -110,7 +113,9 @@ html
       |    | 
       a(href="/terms-of-use", class="text-light") Terms Of Use 
       |    |  
-      a(href="/copyright", class="text-light") Copyright 
+      a(href="/copyright", class="text-light") Copyright
+      |    |  
+      a(href="/contact-us", class="text-light") Contact Us 
 
 
     script.

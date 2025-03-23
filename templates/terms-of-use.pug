@@ -13,6 +13,7 @@ html
         display: flex;
         flex-direction: column;
         margin: 0;
+        overflow-y: auto; 
       }
 
       nav.navbar {
@@ -42,6 +43,7 @@ html
         color: #fff;
         text-align: center;
         z-index: 1000;
+        
       }
 
       button{
@@ -56,7 +58,6 @@ html
       footer a{
         text-decoration: none;
         color: #ffffff8c!important;
-        
       }
 
   body
@@ -73,11 +74,9 @@ html
             li.nav-item
               a.nav-link(href="/") Home
             li.nav-item
-              a.nav-link(href="/privacy-policy") Privacy Policy
+              a.nav-link(href="/about-us") About Us
             li.nav-item
-              a.nav-link(href="/terms-of-use") Terms Of Use
-            li.nav-item
-              a.nav-link(href="/copyright") Copyright
+              a.nav-link(href="/contact-us") Contact Us
 
     // MAIN CONTENT
     .container.mt-5
@@ -124,15 +123,24 @@ html
           h2 8. Contact Information
           p For questions regarding these Terms, contact us at 
             a(href="mailto:adeniyi.idowu50@gmail.com") adeniyi.idowu50@gmail.com
+          p 
+          p
+          p 
+          p 
+          p
+          p 
+          p
 
     // FOOTER (Styled like profile.pug)
     footer.footer.bg-dark.text-light.text-center.py-3
       p &copy; 2025 TimeTracker. All rights reserved.
       br
       a(href="/privacy-policy", class="text-light") Privacy Policy 
-      |    | 
-      a(href="/terms-of-use", class="text-light") Terms Of Use 
       |    |  
+      a(href="/privacy-policy", class="text-light") Privacy Policy 
+      |    | 
       a(href="/copyright", class="text-light") Copyright 
+      |    |    
+      a(href="/contact-us", class="text-light") Contact Us
 
 
