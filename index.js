@@ -752,17 +752,26 @@ app.post("/edit-user", async (request, response) => {
     edit_employee_id,
     edit_first_name,
     edit_last_name,
+    edit_employee_password,
     edit_employee_role,
   } = request.body;
 
   try {
     const db = await connection();
+
+    // Hash the password if a new one is provided
+    let hashedPassword = null;
+    if (edit_employee_password) {
+      hashedPassword = await bcrypt.hash(edit_employee_password, 10);
+    }
+
     const updateResult = await db.collection("users").updateOne(
       { employee_id: edit_employee_id },
       {
         $set: {
           fname: edit_first_name,
           lname: edit_last_name,
+          ...(hashedPassword && { password: hashedPassword }), // Only update if password is provided
           role: edit_employee_role,
         },
       }
