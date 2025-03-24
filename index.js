@@ -11,7 +11,6 @@ const nodemailer = require("nodemailer");
 const MongoStore = require("connect-mongo");
 require("dotenv").config();
 const cors = require("cors");
-const moment = require("moment-timezone");
 
 // const dbUrl = "mongodb://127.0.0.1:27017/"; // for mongoCompass
 const dbUrl = process.env.MONGO_URI;
@@ -30,32 +29,14 @@ app.use(express.json());
 app.use("/node_modules", express.static("node_modules"));
 app.use(express.static("public"));
 
-// app.use(
-//   session({
-//     secret: process.env.SESSION_SECRET,
-//     resave: false,
-//     saveUninitialized: true,
-//     cookie: { secure: false }, // Set to true if using HTTPS
-//   })
-// );
-
-// Set your timezone (e.g., "America/Toronto" or "UTC")
-const userTimezone = "America/Toronto";
-
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
-    store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }), // MongoDB session store
-    cookie: { secure: process.env.NODE_ENV === "production" }, // Secure true if in production
+    cookie: { secure: true }, // Set to true if using HTTPS
   })
 );
-
-// Function to get current time in the correct timezone
-const getCurrentTime = () => {
-  return moment().tz(userTimezone).format("YYYY-MM-DD HH:mm:ss");
-};
 
 // app.use(
 //   session({
