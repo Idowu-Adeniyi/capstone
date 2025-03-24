@@ -11,6 +11,7 @@ const nodemailer = require("nodemailer");
 const MongoStore = require("connect-mongo");
 require("dotenv").config();
 const cors = require("cors");
+const moment = require("moment-timezone");
 
 // const dbUrl = "mongodb://127.0.0.1:27017/"; // for mongoCompass
 const dbUrl = process.env.MONGO_URI;
@@ -915,7 +916,7 @@ app.post("/clockin", async (request, response) => {
 
   try {
     const db = await connection();
-    const clockInTime = new Date();
+    const clockInTime = new Date(getCurrentTime());
     const dateClockIn = clockInTime.toISOString().split("T")[0]; // Extract only the date
 
     // Insert into work_hours collection
@@ -945,13 +946,18 @@ app.post("/clockin", async (request, response) => {
   }
 });
 
+// Ensure it gets current time
+const getCurrentTime = () => {
+  return new Date().toLocaleString("en-US", { timeZone: "America/Toronto" });
+};
+
 // clock out
 app.post("/clockout", async (request, response) => {
   if (!request.session.user) return response.redirect("/login");
 
   try {
     const db = await connection();
-    const clockOutTime = new Date();
+    const clockOutTime = new Date(getCurrentTime());
     const dateClockOut = clockOutTime.toISOString().split("T")[0]; // Extract only the date
 
     // Find the most recent clock-in entry where clockOut is null
