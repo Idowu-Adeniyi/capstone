@@ -386,15 +386,22 @@ app.post("/profile/change-password", async (request, response) => {
 //login
 app.post("/login", async (request, response) => {
   const { employee_id, password } = request.body;
-  if (!employee_id || !password)
-    return response.send("Employee ID and Password are required");
+
+  if (!employee_id || !password) {
+    return response.render("auth/login", {
+      error: "Employee ID and Password are required",
+    });
+  }
 
   const db = await connection();
   const user = await db.collection("users").findOne({ employee_id });
 
   // Check if the user exists and the password is correct
-  if (!user || !(await bcrypt.compare(password, user.password)))
-    return response.send("Invalid Employee ID or Password");
+  if (!user || !(await bcrypt.compare(password, user.password))) {
+    return response.render("auth/login", {
+      error: "Invalid Employee ID or Password",
+    });
+  }
 
   // Store user details and role in the session
   request.session.user = {
@@ -411,6 +418,34 @@ app.post("/login", async (request, response) => {
     response.redirect("/dashboard"); // Employees go to dashboard
   }
 });
+
+// app.post("/login", async (request, response) => {
+//   const { employee_id, password } = request.body;
+//   if (!employee_id || !password)
+//     return response.send("Employee ID and Password are required");
+
+//   const db = await connection();
+//   const user = await db.collection("users").findOne({ employee_id });
+
+//   // Check if the user exists and the password is correct
+//   if (!user || !(await bcrypt.compare(password, user.password)))
+//     return response.send("Invalid Employee ID or Password");
+
+//   // Store user details and role in the session
+//   request.session.user = {
+//     employee_id: user.employee_id,
+//     fname: user.fname,
+//     lname: user.lname,
+//     role: user.role, // Store the role (admin or employee)
+//   };
+
+//   // Redirect to dashboard based on the role
+//   if (user.role === "admin") {
+//     response.redirect("/reports"); // Admin goes to reports page
+//   } else {
+//     response.redirect("/dashboard"); // Employees go to dashboard
+//   }
+// });
 
 // Edit Profile
 app.get("/profile/edit", async (request, response) => {

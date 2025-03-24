@@ -58,6 +58,37 @@ html
         color: #ffffff8c !important;
       }
 
+       .navbar-brand {
+        margin-left: 180px; 
+      }
+
+      #navbarNav ul {
+        display: flex;
+        justify-content: right; 
+        gap: 30px; 
+        width: 100%;
+        margin-right: 175px;
+      }
+
+
+      .navbar-nav .nav-link {
+        color: #d3d3d3 !important;  
+        transition: color 0.3s ease-in-out; 
+      }
+
+      .navbar-nav .nav-link:hover {
+        color: #007bff !important;
+      }
+
+      .text-light:hover {
+        color: #007bff !important;
+      }
+
+      .text-light .a{
+        color: #d3d3d3 !important;  
+        transition: color 0.3s ease-in-out; 
+      }
+
   body
     // HEADER
     nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
@@ -108,7 +139,6 @@ html
     // FOOTER
     footer.footer.bg-dark.text-light.text-center.py-3
       p &copy; 2025 TimeTracker. All rights reserved.
-      br
       a(href="/privacy-policy", class="text-light") Privacy Policy 
       |    | 
       a(href="/terms-of-use", class="text-light") Terms Of Use 

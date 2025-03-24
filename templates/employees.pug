@@ -6,6 +6,42 @@ html
     script(src="/node_modules/bootstrap/dist/js/bootstrap.bundle.min.js")
     link(rel="stylesheet" href="/css/styles.css")
     link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css")
+
+    style.
+
+      footer a{
+        text-decoration: none;
+        color: #ffffff8c!important;
+      }
+      .navbar-brand {
+        margin-left: 180px; 
+      }
+
+      #navbarNav ul {
+        display: flex;
+        justify-content: right; 
+        gap: 30px; 
+        width: 100%;
+        margin-right: 175px;
+      }
+
+      .navbar-nav .nav-link {
+        color: #d3d3d3 !important;  
+        transition: color 0.3s ease-in-out; 
+      }
+
+      .navbar-nav .nav-link:hover {
+        color: #007bff !important;
+      }
+
+      .text-light:hover {
+        color: #007bff !important;
+      }
+
+      .text-light .a{
+        color: #d3d3d3 !important;  
+        transition: color 0.3s ease-in-out; 
+      }
     
   body
     // Add Navbar (Header)
@@ -62,6 +98,7 @@ html
         // Align "Print" and "Download CSV" links to the right
         a.btn.btn-link(href="javascript:window.print();") Print
         a.btn.btn-link(href="javascript:downloadCSV();") Download CSV
+        p
 
     // Modal for Viewing Profile Photo
     .modal.fade(id="photoModal" tabindex="-1" aria-labelledby="photoModalLabel" aria-hidden="true")
@@ -78,6 +115,13 @@ html
     // Footer from the styling example
     footer.footer.bg-dark.text-light.text-center.py-3
       p &copy; 2025 TimeTracker. All rights reserved.
+      a(href="/privacy-policy", class="text-light") Privacy Policy 
+      |    | 
+      a(href="/terms-of-use", class="text-light") Terms Of Use 
+      |    |   
+      a(href="/copyright", class="text-light") Copyright
+      |    |   
+      a(href="/contact-us", class="text-light") Contact Us
 
   script.
     // JavaScript to handle modal data population for the photo
@@ -133,6 +177,7 @@ html
       link.download = 'employee_data.csv';
       link.click();
     }
+    
 
   style.
     // Ensure the footer stays fixed at the bottom
