@@ -39,15 +39,15 @@ app.use(express.static("public"));
 //   })
 // );
 
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-    store: MongoStore.create({ mongoUrl: dbUrl }),
-    cookie: { secure: false },
-  })
-);
+// app.use(
+//   session({
+//     secret: process.env.SESSION_SECRET,
+//     resave: false,
+//     saveUninitialized: true,
+//     store: MongoStore.create({ mongoUrl: dbUrl }),
+//     cookie: { secure: false },
+//   })
+// );
 
 // check home page if logged in remain logged in
 app.get("/", async (request, response) => {
@@ -916,7 +916,7 @@ app.post("/clockin", async (request, response) => {
 
   try {
     const db = await connection();
-    const clockInTime = new Date(getCurrentTime());
+    const clockInTime = new Date();
     const dateClockIn = clockInTime.toISOString().split("T")[0]; // Extract only the date
 
     // Insert into work_hours collection
@@ -946,18 +946,13 @@ app.post("/clockin", async (request, response) => {
   }
 });
 
-// Ensure it gets current time
-const getCurrentTime = () => {
-  return new Date().toLocaleString("en-US", { timeZone: "America/Toronto" });
-};
-
 // clock out
 app.post("/clockout", async (request, response) => {
   if (!request.session.user) return response.redirect("/login");
 
   try {
     const db = await connection();
-    const clockOutTime = new Date(getCurrentTime());
+    const clockOutTime = new Date();
     const dateClockOut = clockOutTime.toISOString().split("T")[0]; // Extract only the date
 
     // Find the most recent clock-in entry where clockOut is null
