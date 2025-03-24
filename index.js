@@ -35,7 +35,7 @@ app.use(
 
 // check home page if logged in remain logged in
 app.get("/", async (request, response) => {
-  let links = await getLinks(); // Your existing logic to get the menu links
+  let links = await getLinks();
   const userLoggedIn = request.session.user ? true : false; // Check if user is logged in
   response.render("index", {
     title: "Home",
@@ -223,7 +223,7 @@ app.get("/dashboard", async (request, response) => {
     .collection("log_history")
     .find({ employee_id: userId })
     .sort({ timestamp: -1 })
-    .limit(6) // ✅ Limit to 6 records
+    .limit(6) //  Limit to 6 records
     .toArray();
 
   let clockStatus = "Not clocked in yet.";
@@ -418,34 +418,6 @@ app.post("/login", async (request, response) => {
     response.redirect("/dashboard"); // Employees go to dashboard
   }
 });
-
-// app.post("/login", async (request, response) => {
-//   const { employee_id, password } = request.body;
-//   if (!employee_id || !password)
-//     return response.send("Employee ID and Password are required");
-
-//   const db = await connection();
-//   const user = await db.collection("users").findOne({ employee_id });
-
-//   // Check if the user exists and the password is correct
-//   if (!user || !(await bcrypt.compare(password, user.password)))
-//     return response.send("Invalid Employee ID or Password");
-
-//   // Store user details and role in the session
-//   request.session.user = {
-//     employee_id: user.employee_id,
-//     fname: user.fname,
-//     lname: user.lname,
-//     role: user.role, // Store the role (admin or employee)
-//   };
-
-//   // Redirect to dashboard based on the role
-//   if (user.role === "admin") {
-//     response.redirect("/reports"); // Admin goes to reports page
-//   } else {
-//     response.redirect("/dashboard"); // Employees go to dashboard
-//   }
-// });
 
 // Edit Profile
 app.get("/profile/edit", async (request, response) => {
@@ -935,7 +907,7 @@ app.post("/clockin", async (request, response) => {
       clockIn: clockInTime,
       dateClockIn: dateClockIn,
       clockOut: null,
-      dateClockOut: null, // Placeholder for future update
+      dateClockOut: null,
     });
 
     // Log entry in log_history with date and time
