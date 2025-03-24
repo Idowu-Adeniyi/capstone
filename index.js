@@ -8,6 +8,7 @@ const fs = require("fs");
 const router = express.Router();
 const userModel = require("./models/userModel");
 const nodemailer = require("nodemailer");
+const MongoStore = require("connect-mongo");
 require("dotenv").config();
 const cors = require("cors");
 
@@ -33,7 +34,8 @@ app.use(
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
-    cookie: { secure: false }, // Set to true if using HTTPS
+    store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
+    cookie: { secure: true },
   })
 );
 
