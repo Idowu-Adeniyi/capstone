@@ -208,7 +208,7 @@ app.get("/profile", async (request, response) => {
 
 // dashboard
 app.get("/dashboard", async (request, response) => {
-  // if (!request.session.user) return response.redirect("/login");
+  if (!request.session.user) return response.redirect("/login");
 
   const db = await connection();
   const userId = request.session.user.employee_id;
