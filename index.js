@@ -29,15 +29,21 @@ app.use(express.json());
 app.use("/node_modules", express.static("node_modules"));
 app.use(express.static("public"));
 
+// Use this MongoDB URI for the session store
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
-    store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
-    cookie: { secure: true },
+    store: MongoStore.create({ mongoUrl: dbUrl }), // Use dbUrl for session store
+    cookie: { secure: true }, // Use true for HTTPS in production, false for local
   })
 );
+
+client
+  .connect()
+  .then(() => console.log("MongoDB connected"))
+  .catch((err) => console.error("MongoDB connection error:", err));
 
 // check home page if logged in remain logged in
 app.get("/", async (request, response) => {
