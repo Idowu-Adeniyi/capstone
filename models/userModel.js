@@ -1,6 +1,8 @@
 const { MongoClient, ObjectId } = require("mongodb");
+require("dotenv").config();
 
-const dbUrl = "mongodb://127.0.0.1:27017/";
+// const dbUrl = "mongodb://127.0.0.1:27017/"; // for mongoCompass
+const dbUrl = process.env.MONGO_URI;
 const client = new MongoClient(dbUrl);
 
 async function connection() {

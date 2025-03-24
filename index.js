@@ -10,7 +10,8 @@ const userModel = require("./models/userModel");
 const nodemailer = require("nodemailer");
 require("dotenv").config();
 
-const dbUrl = "mongodb://127.0.0.1:27017/";
+// const dbUrl = "mongodb://127.0.0.1:27017/"; // for mongoCompass
+const dbUrl = process.env.MONGO_URI;
 const port = process.env.PORT || "8888";
 const client = new MongoClient(dbUrl);
 
