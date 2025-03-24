@@ -9,6 +9,7 @@ const router = express.Router();
 const userModel = require("./models/userModel");
 const nodemailer = require("nodemailer");
 require("dotenv").config();
+const cors = require("cors");
 
 // const dbUrl = "mongodb://127.0.0.1:27017/"; // for mongoCompass
 const dbUrl = process.env.MONGO_URI;
@@ -16,6 +17,7 @@ const port = process.env.PORT || "8888";
 const client = new MongoClient(dbUrl);
 
 const app = express();
+app.use(cors());
 
 app.set("views", path.join(__dirname, "templates"));
 app.set("view engine", "pug");
