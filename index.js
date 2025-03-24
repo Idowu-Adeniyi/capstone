@@ -29,24 +29,24 @@ app.use(express.json());
 app.use("/node_modules", express.static("node_modules"));
 app.use(express.static("public"));
 
-// app.use(
-//   session({
-//     secret: process.env.SESSION_SECRET,
-//     resave: false,
-//     saveUninitialized: true,
-//     cookie: { secure: false }, // Set to true if using HTTPS
-//   })
-// );
-
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
-    store: MongoStore.create({ mongoUrl: dbUrl }),
-    cookie: { secure: true },
+    cookie: { secure: false }, // Set to true if using HTTPS
   })
 );
+
+// app.use(
+//   session({
+//     secret: process.env.SESSION_SECRET,
+//     resave: false,
+//     saveUninitialized: true,
+//     store: MongoStore.create({ mongoUrl: dbUrl }),
+//     cookie: { secure: true },
+//   })
+// );
 
 // check home page if logged in remain logged in
 app.get("/", async (request, response) => {
