@@ -493,7 +493,9 @@ app.post(
 
     try {
       // Connect to MongoDB without deprecated options
-      const db = await MongoClient.connect("mongodb://localhost:27017");
+      const db = await MongoClient.connect(process.env.MONGO_URI);
+
+      // const db = await MongoClient.connect("mongodb://localhost:27017");
 
       const database = db.db("capstonedb");
 
