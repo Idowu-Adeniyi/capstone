@@ -30,9 +30,10 @@ app.use(express.static("public"));
 
 app.use(
   session({
-    secret: "your-secret-key",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
+    cookie: { secure: false }, // Set to true if using HTTPS
   })
 );
 
