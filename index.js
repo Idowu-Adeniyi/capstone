@@ -31,9 +31,18 @@ app.use(express.static("public"));
 
 app.use(
   session({
-    secret: "process.env.SESSION_SECRET",
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
+    store: MongoStore.create({
+      mongoUrl: dbUrl,
+      ttl: 14 * 24 * 60 * 60, // Session expiration (14 days)
+    }),
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000,
+    },
   })
 );
 
