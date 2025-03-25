@@ -1037,8 +1037,6 @@ app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}`);
 });
 
-const moment = require("moment-timezone");
-
 // clock in
 app.post("/clockin", async (request, response) => {
   if (!request.session.user) return response.redirect("/login");
