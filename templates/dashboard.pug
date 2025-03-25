@@ -131,26 +131,22 @@ html
       var clockInTime = !{JSON.stringify(clockInTime)}
 
     script.
-  function convertToLocalTime(utcTime) {
-    if (!utcTime) return "N/A"; // Handle cases where clockOut is null
+      function convertToLocalTime(utcTime) {
+        if (!utcTime) return "N/A"; // Handle null values
 
-    let date = new Date(utcTime);
-    return date.toLocaleString(); // Convert to user's local time format
-  }
+        let date = new Date(utcTime);
+        return date.toLocaleString(); // Convert to user's local time format
+      }
 
-  // Convert stored times to local time before rendering
-  document.addEventListener("DOMContentLoaded", function () {
-    let clockInElements = document.querySelectorAll(".clock-in-time");
-    let clockOutElements = document.querySelectorAll(".clock-out-time");
+      window.onload = function () {
+       document.querySelectorAll(".clock-in-time").forEach(el => {
+        el.textContent = convertToLocalTime(el.textContent.trim());
+      });
 
-    clockInElements.forEach(el => {
-      el.textContent = convertToLocalTime(el.textContent);
-    });
-
-    clockOutElements.forEach(el => {
-      el.textContent = convertToLocalTime(el.textContent);
-    });
-  });
+      document.querySelectorAll(".clock-out-time").forEach(el => {
+      el.textContent = convertToLocalTime(el.textContent.trim());
+      });
+    };
 
 table
   tr
@@ -158,5 +154,6 @@ table
     th Clock Out Time
   each log in logs
     tr
-      td.clock-in-time #{log.clockInTime} 
-      td.clock-out-time #{log.clockOutTime || 'Still Clocked In'}
+      td.clock-in-time !{log.clockInTime} 
+      td.clock-out-time !{log.clockOutTime || 'Still Clocked In'}
+
