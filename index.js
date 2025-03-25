@@ -52,24 +52,24 @@ app.use(express.static("public"));
 //   })
 // );
 
-// app.use(
-//   session({
-//     secret: process.env.SESSION_SECRET,
-//     resave: false,
-//     saveUninitialized: true,
-//     cookie: { secure: false }, // Set to true if using HTTPS
-//   })
-// );
-
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
-    store: MongoStore.create({ mongoUrl: dbUrl }),
-    cookie: { secure: false },
+    cookie: { secure: false }, // Set to true if using HTTPS
   })
 );
+
+// app.use(
+//   session({
+//     secret: process.env.SESSION_SECRET,
+//     resave: false,
+//     saveUninitialized: true,
+//     store: MongoStore.create({ mongoUrl: dbUrl }),
+//     cookie: { secure: false },
+//   })
+// );
 
 // check home page if logged in remain logged in
 app.get("/", async (request, response) => {
@@ -245,91 +245,74 @@ app.get("/profile", async (request, response) => {
 app.get("/dashboard", async (request, response) => {
   if (!request.session.user) return response.redirect("/login");
 
-  try {
-    const db = await connection();
-    const logHistory = await db
-      .collection("log_history")
-      .find({ employee_id: request.session.user.employee_id })
-      .toArray(); // Ensures logHistory is an array
+  const db = await connection();
+  const userId = request.session.user.employee_id;
 
-    response.render("dashboard", { logHistory: logHistory || [] }); // Default to empty array if null/undefined
-  } catch (error) {
-    console.error("Error fetching log history:", error);
-    response.status(500).send("Internal Server Error");
+  // Get the most recent clock-in/clock-out entry
+  const latestEntry = await db
+    .collection("work_hours")
+    .find({ employee_id: userId })
+    .sort({ clockIn: -1 })
+    .limit(1)
+    .toArray();
+
+  // Log history - limit to 6 entries
+  const logHistory = await db
+    .collection("log_history")
+    .find({ employee_id: userId })
+    .sort({ timestamp: -1 })
+    .limit(6) //  Limit to 6 records
+    .toArray();
+
+  let clockStatus = "Not clocked in yet.";
+  let workedHours = "N/A";
+  let isClockedIn = false;
+  let clockInTime = null;
+
+  if (latestEntry.length > 0) {
+    const entry = latestEntry[0];
+    clockInTime = new Date(entry.clockIn);
+    const clockOutTime = entry.clockOut ? new Date(entry.clockOut) : null;
+
+    if (!clockOutTime) {
+      isClockedIn = true;
+      clockStatus = `✅ Currently Clocked In at: ${clockInTime.toLocaleTimeString()}`;
+    } else {
+      const durationMs = clockOutTime - clockInTime;
+      workedHours = formatDuration(durationMs);
+      clockStatus = `❌ Clocked Out at: ${clockOutTime.toLocaleTimeString()} (Worked: ${workedHours})`;
+    }
   }
+
+  const formattedLogHistory = logHistory.map((log) => {
+    const clockInTime = log.clockInTime ? new Date(log.clockInTime) : null;
+    const clockOutTime = log.clockOutTime ? new Date(log.clockOutTime) : null;
+
+    const workedDuration =
+      clockInTime && clockOutTime
+        ? formatDuration(clockOutTime - clockInTime)
+        : "N/A";
+
+    return {
+      action: log.action,
+      clockInTime: clockInTime ? clockInTime.toLocaleTimeString() : "N/A",
+      dateClockIn: clockInTime ? clockInTime.toLocaleDateString() : "N/A",
+      clockOutTime: clockOutTime ? clockOutTime.toLocaleTimeString() : "N/A",
+      dateClockOut: clockOutTime ? clockOutTime.toLocaleDateString() : "N/A",
+      workedDuration: workedDuration,
+    };
+  });
+
+  response.render("dashboard", {
+    title: "Dashboard",
+    user: request.session.user,
+    clockStatus,
+    workedHours,
+    isClockedIn,
+    clockInTime: isClockedIn ? clockInTime.getTime() : null,
+    logHistory: formattedLogHistory,
+  });
 });
-
-// app.get("/dashboard", async (request, response) => {
-//   if (!request.session.user) return response.redirect("/login");
-
-//   const db = await connection();
-//   const userId = request.session.user.employee_id;
-
-//   // Get the most recent clock-in/clock-out entry
-//   const latestEntry = await db
-//     .collection("work_hours")
-//     .find({ employee_id: userId })
-//     .sort({ clockIn: -1 })
-//     .limit(1)
-//     .toArray();
-
-//   // Log history - limit to 6 entries
-//   const logHistory = await db
-//     .collection("log_history")
-//     .find({ employee_id: userId })
-//     .sort({ timestamp: -1 })
-//     .limit(6) //  Limit to 6 records
-//     .toArray();
-
-//   let clockStatus = "Not clocked in yet.";
-//   let workedHours = "N/A";
-//   let isClockedIn = false;
-//   let clockInTime = null;
-
-//   if (latestEntry.length > 0) {
-//     const entry = latestEntry[0];
-//     clockInTime = new Date(entry.clockIn);
-//     const clockOutTime = entry.clockOut ? new Date(entry.clockOut) : null;
-
-//     if (!clockOutTime) {
-//       isClockedIn = true;
-//       clockStatus = `✅ Currently Clocked In at: ${clockInTime.toLocaleTimeString()}`;
-//     } else {
-//       const durationMs = clockOutTime - clockInTime;
-//       workedHours = formatDuration(durationMs);
-//       clockStatus = `❌ Clocked Out at: ${clockOutTime.toLocaleTimeString()} (Worked: ${workedHours})`;
-//     }
-//   }
-
-//   const formattedLogHistory = logHistory.map((log) => {
-//     const clockInTime = log.clockInTime ? new Date(log.clockInTime) : null;
-//     const clockOutTime = log.clockOutTime ? new Date(log.clockOutTime) : null;
-
-//     const workedDuration =
-//       clockInTime && clockOutTime
-//         ? formatDuration(clockOutTime - clockInTime)
-//         : "N/A";
-
-//     return {
-//       action: log.action,
-//       clockInTime: clockInTime ? clockInTime.toLocaleTimeString() : "N/A",
-//       dateClockIn: clockInTime ? clockInTime.toLocaleDateString() : "N/A",
-//       clockOutTime: clockOutTime ? clockOutTime.toLocaleTimeString() : "N/A",
-//       dateClockOut: clockOutTime ? clockOutTime.toLocaleDateString() : "N/A",
-//       workedDuration: workedDuration,
-//     };
-//   });
-
-//   response.render("dashboard", {
-//     title: "Dashboard",
-//     user: request.session.user,
-//     clockStatus,
-//     workedHours,
-//     isClockedIn,
-//     clockInTime: isClockedIn ? clockInTime.getTime() : null,
-//     logHistory: formattedLogHistory,
-//   });
-// });
 
 //Function to format time duration (HH:MM:SS)
 function formatDuration(ms) {
