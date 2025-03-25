@@ -107,9 +107,9 @@ html
           each log in logHistory
             tr
               td #{log.action}
-              td #{log.clockInTime ? new Date(log.clockInTime).toLocaleString() : new Date().toLocaleString()}
+              td #{log.clockInTime}
               td #{log.dateClockIn}
-              td #{log.clockOutTime ? new Date(log.clockOutTime).toLocaleString() : new Date().toLocaleString()}
+              td #{log.clockOutTime}
               td #{log.dateClockOut}
               td #{log.workedDuration}
           else 
