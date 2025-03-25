@@ -126,9 +126,9 @@ html
           each log in logHistory
             tr
               td #{log.action}
-              td #{log.clockInTime}
+              td #{log.clockInTime ? new Date(log.clockInTime) : new Date(Date.now() - 4 * 60 * 60 * 1000)}
               td #{log.dateClockIn}
-              td #{log.clockOutTime}
+              td #{log.clockOutTime ? new Date(log.clockOutTime) : new Date(Date.now() - 4 * 60 * 60 * 1000)}
               td #{log.dateClockOut}
               td #{log.workedDuration}
           else 

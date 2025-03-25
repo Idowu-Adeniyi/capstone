@@ -938,7 +938,7 @@ app.post("/clockin", async (request, response) => {
 
   try {
     const db = await connection();
-    const clockInTime = new Date(Date.now() - 4 * 60 * 60 * 1000);
+    const clockInTime = new Date();
     const dateClockIn = clockInTime.toISOString().split("T")[0]; // Extract only the date
 
     // Insert into work_hours collection
@@ -974,7 +974,7 @@ app.post("/clockout", async (request, response) => {
 
   try {
     const db = await connection();
-    const clockOutTime = new Date(Date.now() - 4 * 60 * 60 * 1000);
+    const clockOutTime = new Date();
     const dateClockOut = clockOutTime.toISOString().split("T")[0]; // Extract only the date
 
     // Find the most recent clock-in entry where clockOut is null
