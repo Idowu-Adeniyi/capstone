@@ -11,9 +11,6 @@ const nodemailer = require("nodemailer");
 const MongoStore = require("connect-mongo");
 require("dotenv").config();
 const cors = require("cors");
-const moment = require("moment-timezone");
-const redis = require("redis");
-const RedisStore = require("connect-redis")(session);
 
 // const dbUrl = "mongodb://127.0.0.1:27017/"; // for mongoCompass
 const dbUrl = process.env.MONGO_URI;
@@ -34,14 +31,9 @@ app.use(express.static("public"));
 
 app.use(
   session({
-    secret: process.env.SESSION_SECRET || "your_secret_key",
+    secret: "process.env.SESSION_SECRET",
     resave: false,
     saveUninitialized: true,
-    cookie: {
-      secure: process.env.NODE_ENV === "production", // Ensures cookie is sent only over HTTPS in production
-      httpOnly: true, // Helps protect from cross-site scripting attacks
-      maxAge: 24 * 60 * 60 * 1000, // Cookie will expire in 1 day
-    },
   })
 );
 
