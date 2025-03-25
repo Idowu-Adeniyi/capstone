@@ -1045,16 +1045,13 @@ app.post("/clockin", async (request, response) => {
     const db = await connection();
 
     // Get the current time in Toronto timezone
-    const clockInTime = new Date().toLocaleString("en-US", {
-      timeZone: "America/Toronto",
-    });
-    const clockInDate = new Date(clockInTime); // Convert to a Date object
-    const dateClockIn = clockInDate.toISOString().split("T")[0]; // Extract only the date
+    const clockInTime = new Date();
+    const dateClockIn = clockInTime.toISOString().split("T")[0]; // Extract only the date
 
     // Insert into work_hours collection
     await db.collection("work_hours").insertOne({
       employee_id: request.session.user.employee_id,
-      clockIn: clockInDate,
+      clockIn: clockInTime,
       dateClockIn: dateClockIn,
       clockOut: null,
       dateClockOut: null,
@@ -1064,8 +1061,8 @@ app.post("/clockin", async (request, response) => {
     await db.collection("log_history").insertOne({
       employee_id: request.session.user.employee_id,
       action: "Clock In",
-      timestamp: clockInDate,
-      clockInTime: clockInDate,
+      timestamp: clockInTime,
+      clockInTime: clockInTime,
       dateClockIn: dateClockIn, // Storing only the date
       clockOutTime: null,
       dateClockOut: null,
@@ -1086,11 +1083,8 @@ app.post("/clockout", async (request, response) => {
     const db = await connection();
 
     // Get the current time in Toronto timezone
-    const clockOutTime = new Date().toLocaleString("en-US", {
-      timeZone: "America/Toronto",
-    });
-    const clockOutDate = new Date(clockOutTime); // Convert to a Date object
-    const dateClockOut = clockOutDate.toISOString().split("T")[0]; // Extract only the date
+    const clockOutTime = new Date();
+    const dateClockOut = clockOutTime.toISOString().split("T")[0]; // Extract only the date
 
     // Find the most recent clock-in entry where clockOut is null
     const latestEntry = await db.collection("work_hours").findOne({
@@ -1107,7 +1101,7 @@ app.post("/clockout", async (request, response) => {
       .collection("work_hours")
       .updateOne(
         { _id: latestEntry._id },
-        { $set: { clockOut: clockOutDate, dateClockOut: dateClockOut } }
+        { $set: { clockOut: clockOutTime, dateClockOut: dateClockOut } }
       );
 
     // Update log_history to reflect the clock-out time and date
@@ -1119,7 +1113,7 @@ app.post("/clockout", async (request, response) => {
       },
       {
         $set: {
-          clockOutTime: clockOutDate,
+          clockOutTime: clockOutTime,
           dateClockOut: dateClockOut,
           action: "Clock Out",
         },
