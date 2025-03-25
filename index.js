@@ -41,9 +41,6 @@ app.use(
   })
 );
 
-const clockInTime = moment.tz("America/Toronto").format(); // Toronto time
-const dateClockIn = moment(clockInTime).format("YYYY-MM-DD"); // Date only
-
 // app.use(
 //   session({
 //     secret:
@@ -936,13 +933,119 @@ app.post("/resetClock", async (request, response) => {
 });
 
 // clock in
+// app.post("/clockin", async (request, response) => {
+//   if (!request.session.user) return response.redirect("/login");
+
+//   try {
+//     const db = await connection();
+//     const clockInTime = new Date();
+//     const dateClockIn = clockInTime.toISOString().split("T")[0]; // Extract only the date
+
+//     // Insert into work_hours collection
+//     await db.collection("work_hours").insertOne({
+//       employee_id: request.session.user.employee_id,
+//       clockIn: clockInTime,
+//       dateClockIn: dateClockIn,
+//       clockOut: null,
+//       dateClockOut: null,
+//     });
+
+//     // Log entry in log_history with date and time
+//     await db.collection("log_history").insertOne({
+//       employee_id: request.session.user.employee_id,
+//       action: "Clock In",
+//       timestamp: clockInTime,
+//       clockInTime: clockInTime,
+//       dateClockIn: dateClockIn, // Storing only the date
+//       clockOutTime: null,
+//       dateClockOut: null,
+//     });
+
+//     response.redirect("/dashboard");
+//   } catch (error) {
+//     console.error("Error during clock-in:", error);
+//     response.status(500).send("Internal Server Error");
+//   }
+// });
+
+// // clock out
+// app.post("/clockout", async (request, response) => {
+//   if (!request.session.user) return response.redirect("/login");
+
+//   try {
+//     const db = await connection();
+//     const clockOutTime = new Date();
+//     const dateClockOut = clockOutTime.toISOString().split("T")[0]; // Extract only the date
+
+//     // Find the most recent clock-in entry where clockOut is null
+//     const latestEntry = await db.collection("work_hours").findOne({
+//       employee_id: request.session.user.employee_id,
+//       clockOut: null,
+//     });
+
+//     if (!latestEntry) {
+//       return response.send("No active clock-in found.");
+//     }
+
+//     // Update the clockOut time and date in work_hours
+//     await db
+//       .collection("work_hours")
+//       .updateOne(
+//         { _id: latestEntry._id },
+//         { $set: { clockOut: clockOutTime, dateClockOut: dateClockOut } }
+//       );
+
+//     // Update log_history to reflect the clock-out time and date
+//     await db.collection("log_history").updateOne(
+//       {
+//         employee_id: request.session.user.employee_id,
+//         action: "Clock In",
+//         clockOutTime: null,
+//       },
+//       {
+//         $set: {
+//           clockOutTime: clockOutTime,
+//           dateClockOut: dateClockOut,
+//           action: "Clock Out",
+//         },
+//       }
+//     );
+
+//     response.redirect("/dashboard");
+//   } catch (error) {
+//     console.error("Error during clock-out:", error);
+//     response.status(500).send("Internal Server Error");
+//   }
+// });
+
+async function connection() {
+  try {
+    await client.connect();
+    return client.db("capstonedb");
+  } catch (error) {
+    console.error("MongoDB connection error:", error);
+    throw new Error("Unable to connect to the database.");
+  }
+}
+
+async function getLinks() {
+  const db = await connection();
+  return await db.collection("menuLinks").find({}).toArray();
+}
+
+app.listen(port, () => {
+  console.log(`Listening at http://localhost:${port}`);
+});
+
+// clock in
 app.post("/clockin", async (request, response) => {
   if (!request.session.user) return response.redirect("/login");
 
   try {
     const db = await connection();
-    const clockInTime = new Date();
-    const dateClockIn = clockInTime.toISOString().split("T")[0]; // Extract only the date
+    // Adjusting the time to Toronto timezone
+    const clockInTime = moment.tz("America/Toronto").format(); // Toronto time
+    const dateClockIn = moment(clockInTime).format("YYYY-MM-DD"); // Extract only the date
 
     // Insert into work_hours collection
     await db.collection("work_hours").insertOne({
@@ -977,8 +1080,9 @@ app.post("/clockout", async (request, response) => {
 
   try {
     const db = await connection();
-    const clockOutTime = new Date();
-    const dateClockOut = clockOutTime.toISOString().split("T")[0]; // Extract only the date
+    // Adjusting the time to Toronto timezone
+    const clockOutTime = moment.tz("America/Toronto").format(); // Toronto time
+    const dateClockOut = moment(clockOutTime).format("YYYY-MM-DD"); // Extract only the date
 
     // Find the most recent clock-in entry where clockOut is null
     const latestEntry = await db.collection("work_hours").findOne({
@@ -990,7 +1094,7 @@ app.post("/clockout", async (request, response) => {
       return response.send("No active clock-in found.");
     }
 
-    // Update the clockOut time and date in work_hours
+    // Update clock-out time for the most recent clock-in
     await db
       .collection("work_hours")
       .updateOne(
@@ -998,44 +1102,20 @@ app.post("/clockout", async (request, response) => {
         { $set: { clockOut: clockOutTime, dateClockOut: dateClockOut } }
       );
 
-    // Update log_history to reflect the clock-out time and date
-    await db.collection("log_history").updateOne(
-      {
-        employee_id: request.session.user.employee_id,
-        action: "Clock In",
-        clockOutTime: null,
-      },
-      {
-        $set: {
-          clockOutTime: clockOutTime,
-          dateClockOut: dateClockOut,
-          action: "Clock Out",
-        },
-      }
-    );
+    // Log entry for clock-out action
+    await db.collection("log_history").insertOne({
+      employee_id: request.session.user.employee_id,
+      action: "Clock Out",
+      timestamp: clockOutTime,
+      clockInTime: latestEntry.clockIn,
+      dateClockIn: latestEntry.dateClockIn,
+      clockOutTime: clockOutTime,
+      dateClockOut: dateClockOut,
+    });
 
     response.redirect("/dashboard");
   } catch (error) {
     console.error("Error during clock-out:", error);
     response.status(500).send("Internal Server Error");
   }
-});
-
-async function connection() {
-  try {
-    await client.connect();
-    return client.db("capstonedb");
-  } catch (error) {
-    console.error("MongoDB connection error:", error);
-    throw new Error("Unable to connect to the database.");
-  }
-}
-
-async function getLinks() {
-  const db = await connection();
-  return await db.collection("menuLinks").find({}).toArray();
-}
-
-app.listen(port, () => {
-  console.log(`Listening at http://localhost:${port}`);
 });
