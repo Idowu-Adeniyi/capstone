@@ -1037,15 +1037,18 @@ app.listen(port, () => {
   console.log(`Listening at http://localhost:${port}`);
 });
 
+const moment = require("moment-timezone");
+
 // clock in
 app.post("/clockin", async (request, response) => {
   if (!request.session.user) return response.redirect("/login");
 
   try {
     const db = await connection();
-    // Adjusting the time to Toronto timezone
-    const clockInTime = moment.tz("America/Toronto").format(); // Toronto time
-    const dateClockIn = moment(clockInTime).format("YYYY-MM-DD"); // Extract only the date
+
+    // Get the current time in Toronto time zone
+    const clockInTime = moment.tz("America/Toronto").toDate();
+    const dateClockIn = clockInTime.toISOString().split("T")[0]; // Extract only the date
 
     // Insert into work_hours collection
     await db.collection("work_hours").insertOne({
@@ -1070,52 +1073,6 @@ app.post("/clockin", async (request, response) => {
     response.redirect("/dashboard");
   } catch (error) {
     console.error("Error during clock-in:", error);
-    response.status(500).send("Internal Server Error");
-  }
-});
-
-// clock out
-app.post("/clockout", async (request, response) => {
-  if (!request.session.user) return response.redirect("/login");
-
-  try {
-    const db = await connection();
-    // Adjusting the time to Toronto timezone
-    const clockOutTime = moment.tz("America/Toronto").format(); // Toronto time
-    const dateClockOut = moment(clockOutTime).format("YYYY-MM-DD"); // Extract only the date
-
-    // Find the most recent clock-in entry where clockOut is null
-    const latestEntry = await db.collection("work_hours").findOne({
-      employee_id: request.session.user.employee_id,
-      clockOut: null,
-    });
-
-    if (!latestEntry) {
-      return response.send("No active clock-in found.");
-    }
-
-    // Update clock-out time for the most recent clock-in
-    await db
-      .collection("work_hours")
-      .updateOne(
-        { _id: latestEntry._id },
-        { $set: { clockOut: clockOutTime, dateClockOut: dateClockOut } }
-      );
-
-    // Log entry for clock-out action
-    await db.collection("log_history").insertOne({
-      employee_id: request.session.user.employee_id,
-      action: "Clock Out",
-      timestamp: clockOutTime,
-      clockInTime: latestEntry.clockIn,
-      dateClockIn: latestEntry.dateClockIn,
-      clockOutTime: clockOutTime,
-      dateClockOut: dateClockOut,
-    });
-
-    response.redirect("/dashboard");
-  } catch (error) {
-    console.error("Error during clock-out:", error);
     response.status(500).send("Internal Server Error");
   }
 });
