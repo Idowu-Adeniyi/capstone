@@ -11,6 +11,7 @@ const nodemailer = require("nodemailer");
 const MongoStore = require("connect-mongo");
 require("dotenv").config();
 const cors = require("cors");
+const moment = require("moment-timezone");
 
 // const dbUrl = "mongodb://127.0.0.1:27017/"; // for mongoCompass
 const dbUrl = process.env.MONGO_URI;
@@ -39,6 +40,26 @@ app.use(
     cookie: { secure: false }, // For testing, use false (set to true if using HTTPS)
   })
 );
+
+// Middleware to ensure that the correct time is used
+app.use((request, response, next) => {
+  if (request.session) {
+    // Get current time in Toronto timezone
+    request.session.clockInTime = moment.tz("America/Toronto").format(); // Save the time in session
+  }
+  next();
+});
+
+// app.use(
+//   session({
+//     secret:
+//       process.env.SESSION_SECRET ||
+//       "c3dce3b9afd4dd4511c54fa758b1caca80b2022d3325566cefe8c383b17b47c4",
+//     resave: false,
+//     saveUninitialized: true,
+//     cookie: { secure: false }, // For testing, use false (set to true if using HTTPS)
+//   })
+// );
 
 // app.use(
 //   session({
