@@ -107,9 +107,9 @@ html
           each log in logHistory
             tr
               td #{log.action}
-              td #{log.clockInTime.new Date().toISOString();}
+              td #{log.new Date(clockInTime).toISOString();}
               td #{log.dateClockIn}
-              td #{log.clockOutTime.new Date().toISOString();}
+              td #{log.new Date(clockOutTime).toISOString();}
               td #{log.dateClockOut}
               td #{log.workedDuration}
           else 
