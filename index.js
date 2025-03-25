@@ -41,14 +41,8 @@ app.use(
   })
 );
 
-// Middleware to ensure that the correct time is used
-app.use((request, response, next) => {
-  if (request.session) {
-    // Get current time in Toronto timezone
-    request.session.clockInTime = moment.tz("America/Toronto").format(); // Save the time in session
-  }
-  next();
-});
+const clockInTime = moment.tz("America/Toronto").format(); // Toronto time
+const dateClockIn = moment(clockInTime).format("YYYY-MM-DD"); // Date only
 
 // app.use(
 //   session({
