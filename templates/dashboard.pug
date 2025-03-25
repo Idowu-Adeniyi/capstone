@@ -107,9 +107,9 @@ html
           each log in logHistory
             tr
               td #{log.action}
-              td #{log.clockInTime}
+              td #{log.clockInTime || new Date().toLocaleString()}
               td #{log.dateClockIn}
-              td #{log.clockOutTime}
+              td #{log.clockOutTime || new Date().toLocaleString()}
               td #{log.dateClockOut}
               td #{log.workedDuration}
           else 
@@ -130,22 +130,7 @@ html
     script.
       var clockInTime = !{JSON.stringify(clockInTime)}
 
-    script.
-       function formatTime(timeString) {
-         if (!timeString || timeString === "null") return "N/A"; // Handle missing values
-         return new Date(timeString).toLocaleString(); // Convert to local time
-       }
-
-    table
-      tr
-        th Clock In Time
-        th Clock Out Time
-      each log in logs
-        tr
-          td !{log.clockInTime ? new Date(log.clockInTime).toLocaleString() : "N/A"}
-          td !{log.clockOutTime ? new Date(log.clockOutTime).toLocaleString() : "Still Clocked In"}
-
-
+    
     
 
 
