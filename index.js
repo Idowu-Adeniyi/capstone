@@ -61,15 +61,15 @@ app.use(express.static("public"));
 //   })
 // );
 
-// app.use(
-//   session({
-//     secret: process.env.SESSION_SECRET,
-//     resave: false,
-//     saveUninitialized: true,
-//     store: MongoStore.create({ mongoUrl: dbUrl }),
-//     cookie: { secure: false },
-//   })
-// );
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+    store: MongoStore.create({ mongoUrl: dbUrl }),
+    cookie: { secure: false },
+  })
+);
 
 // check home page if logged in remain logged in
 app.get("/", async (request, response) => {
