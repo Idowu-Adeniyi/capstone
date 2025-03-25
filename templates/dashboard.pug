@@ -132,21 +132,21 @@ html
 
     script.
       function convertToLocalTime(utcTime) {
-        if (!utcTime) return "N/A"; // Handle null values
+      if (!utcTime || utcTime === "null") return "N/A"; // Handle empty values
 
-        let date = new Date(utcTime);
-        return date.toLocaleString(); // Convert to user's local time format
-      }
+      let date = new Date(utcTime);
+      return date.toLocaleString(); // Convert to user's local time
+    }
 
-      window.onload = function () {
-       document.querySelectorAll(".clock-in-time").forEach(el => {
-        el.textContent = convertToLocalTime(el.textContent.trim());
-      });
+      document.addEventListener("DOMContentLoaded", function () {
+      document.querySelectorAll(".clock-in-time").forEach(el => {
+      el.textContent = convertToLocalTime(el.textContent.trim());
+    });
 
       document.querySelectorAll(".clock-out-time").forEach(el => {
       el.textContent = convertToLocalTime(el.textContent.trim());
-      });
-    };
+    });
+  });
 
 table
   tr
@@ -154,6 +154,7 @@ table
     th Clock Out Time
   each log in logs
     tr
-      td.clock-in-time !{log.clockInTime} 
-      td.clock-out-time !{log.clockOutTime || 'Still Clocked In'}
+      td.clock-in-time #{log.clockInTime}
+      td.clock-out-time #{log.clockOutTime || 'Still Clocked In'}
+
 
