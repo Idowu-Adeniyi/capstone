@@ -30,16 +30,16 @@ app.use(express.json());
 app.use("/node_modules", express.static("node_modules"));
 app.use(express.static("public"));
 
-app.use(
-  session({
-    secret:
-      process.env.SESSION_SECRET ||
-      "c3dce3b9afd4dd4511c54fa758b1caca80b2022d3325566cefe8c383b17b47c4",
-    resave: false,
-    saveUninitialized: true,
-    cookie: { secure: false }, // For testing, use false (set to true if using HTTPS)
-  })
-);
+// app.use(
+//   session({
+//     secret:
+//       process.env.SESSION_SECRET ||
+//       "c3dce3b9afd4dd4511c54fa758b1caca80b2022d3325566cefe8c383b17b47c4",
+//     resave: false,
+//     saveUninitialized: true,
+//     cookie: { secure: false }, // For testing, use false (set to true if using HTTPS)
+//   })
+// );
 
 // app.use(
 //   session({
