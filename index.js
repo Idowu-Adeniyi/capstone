@@ -1074,3 +1074,55 @@ app.post("/clockin", async (request, response) => {
     response.status(500).send("Internal Server Error");
   }
 });
+
+// clock out
+app.post("/clockout", async (request, response) => {
+  if (!request.session.user) return response.redirect("/login");
+
+  try {
+    const db = await connection();
+
+    // Get the current time in Toronto time zone
+    const clockOutTime = moment.tz("America/Toronto").toDate();
+    const dateClockOut = clockOutTime.toISOString().split("T")[0]; // Extract only the date
+
+    // Find the most recent clock-in entry where clockOut is null
+    const latestEntry = await db.collection("work_hours").findOne({
+      employee_id: request.session.user.employee_id,
+      clockOut: null,
+    });
+
+    if (!latestEntry) {
+      return response.send("No active clock-in found.");
+    }
+
+    // Update the clockOut time and date in work_hours
+    await db
+      .collection("work_hours")
+      .updateOne(
+        { _id: latestEntry._id },
+        { $set: { clockOut: clockOutTime, dateClockOut: dateClockOut } }
+      );
+
+    // Update log_history to reflect the clock-out time and date
+    await db.collection("log_history").updateOne(
+      {
+        employee_id: request.session.user.employee_id,
+        action: "Clock In",
+        clockOutTime: null,
+      },
+      {
+        $set: {
+          clockOutTime: clockOutTime,
+          dateClockOut: dateClockOut,
+          action: "Clock Out",
+        },
+      }
+    );
+
+    response.redirect("/dashboard");
+  } catch (error) {
+    console.error("Error during clock-out:", error);
+    response.status(500).send("Internal Server Error");
+  }
+});
