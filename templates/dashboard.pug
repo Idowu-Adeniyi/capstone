@@ -107,9 +107,9 @@ html
           each log in logHistory
             tr
               td #{log.action}
-              td #{log.clockInTime}
+              td #{log.clockInTime ? new Date(log.clockInTime).toLocaleString("en-CA", { timeZone: "America/Toronto" }) : ""}
               td #{log.dateClockIn}
-              td #{log.clockOutTime}
+              td #{log.clockOutTime ? new Date(log.clockOutTime).toLocaleString("en-CA", { timeZone: "America/Toronto" }) : ""}
               td #{log.dateClockOut}
               td #{log.workedDuration}
           else 
@@ -130,9 +130,7 @@ html
     script.
       var clockInTime = !{JSON.stringify(clockInTime)}
 
-    script.
-      log.clockInTime = new Date(log.clockInTime).toLocaleString("en-CA", { timeZone: "America/Toronto" });
-      log.clockOutTime = log.clockOutTime ? new Date(log.clockOutTime).toLocaleString("en-CA", { timeZone: "America/Toronto" }) : null;
+   
   
 
     
