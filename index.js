@@ -1044,15 +1044,15 @@ app.post("/clockin", async (request, response) => {
   try {
     const db = await connection();
 
-    // Get the current time in Toronto timezone
-    const clockInTime = new Date();
-    const dateClockIn = clockInTime.toISOString().split("T")[0]; // Extract only the date
+    // Get current local time (this should give the correct Toronto time if server timezone is set correctly)
+    const clockInTime = new Date(); // This gets the local server time
+    const dateClockIn = clockInTime.toISOString().split("T")[0]; // Extract only the date (YYYY-MM-DD)
 
     // Insert into work_hours collection
     await db.collection("work_hours").insertOne({
       employee_id: request.session.user.employee_id,
       clockIn: clockInTime,
-      dateClockIn: dateClockIn,
+      dateClockIn: dateClockIn, // Store the date in 'dateClockIn'
       clockOut: null,
       dateClockOut: null,
     });
@@ -1062,8 +1062,8 @@ app.post("/clockin", async (request, response) => {
       employee_id: request.session.user.employee_id,
       action: "Clock In",
       timestamp: clockInTime,
-      clockInTime: clockInTime,
-      dateClockIn: dateClockIn, // Storing only the date
+      clockInTime: clockInTime, // Store the clock-in time
+      dateClockIn: dateClockIn, // Store only the date
       clockOutTime: null,
       dateClockOut: null,
     });
@@ -1081,10 +1081,8 @@ app.post("/clockout", async (request, response) => {
 
   try {
     const db = await connection();
-
-    // Get the current time in Toronto timezone
-    const clockOutTime = new Date();
-    const dateClockOut = clockOutTime.toISOString().split("T")[0]; // Extract only the date
+    const clockOutTime = new Date(); // Get current local time for clock-out
+    const dateClockOut = clockOutTime.toISOString().split("T")[0]; // Extract only the date (YYYY-MM-DD)
 
     // Find the most recent clock-in entry where clockOut is null
     const latestEntry = await db.collection("work_hours").findOne({
