@@ -131,30 +131,21 @@ html
       var clockInTime = !{JSON.stringify(clockInTime)}
 
     script.
-      function convertToLocalTime(utcTime) {
-      if (!utcTime || utcTime === "null") return "N/A"; // Handle empty values
+       function formatTime(timeString) {
+         if (!timeString || timeString === "null") return "N/A"; // Handle missing values
+         return new Date(timeString).toLocaleString(); // Convert to local time
+       }
 
-      let date = new Date(utcTime);
-      return date.toLocaleString(); // Convert to user's local time
-    }
+    table
+      tr
+        th Clock In Time
+        th Clock Out Time
+      each log in logs
+        tr
+          td !{log.clockInTime ? new Date(log.clockInTime).toLocaleString() : "N/A"}
+          td !{log.clockOutTime ? new Date(log.clockOutTime).toLocaleString() : "Still Clocked In"}
 
-      document.addEventListener("DOMContentLoaded", function () {
-      document.querySelectorAll(".clock-in-time").forEach(el => {
-      el.textContent = convertToLocalTime(el.textContent.trim());
-    });
 
-      document.querySelectorAll(".clock-out-time").forEach(el => {
-      el.textContent = convertToLocalTime(el.textContent.trim());
-    });
-  });
-
-table
-  tr
-    th Clock In Time
-    th Clock Out Time
-  each log in logs
-    tr
-      td.clock-in-time #{log.clockInTime}
-      td.clock-out-time #{log.clockOutTime || 'Still Clocked In'}
+    
 
 
