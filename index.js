@@ -78,6 +78,7 @@ app.get("/", async (request, response) => {
   response.render("index", {
     title: "Home",
     menu: links,
+    currentPage: "index",
     userLoggedIn, // Pass the login state to the template
   });
 });
@@ -102,22 +103,22 @@ app.get("/register", (request, response) => {
 
 // get privacy page
 app.get("/privacy-policy", (request, response) => {
-  response.render("privacy-policy");
+  response.render("privacy-policy", { title: "Privacy" });
 });
 
 //get terms of use page
 app.get("/terms-of-use", (request, response) => {
-  response.render("terms-of-use");
+  response.render("terms-of-use", { title: "Terms" });
 });
 
 //get about us
 app.get("/about-us", (request, response) => {
-  response.render("about-us");
+  response.render("about-us", { title: "About" });
 });
 
 //get copyright of use page
 app.get("/copyright", (request, response) => {
-  response.render("copyright");
+  response.render("copyright", { title: "Copyright" });
 });
 
 // contact us

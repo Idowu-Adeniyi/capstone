@@ -101,6 +101,11 @@ html
         transition: color 0.3s ease-in-out; 
       }
 
+      .nav-link.active {
+        text-decoration: underline #007bff 5px; 
+        text-underline-offset: 5px;
+      }
+
   
   body
     // HEADER
@@ -116,6 +121,8 @@ html
             li.nav-item
               a.nav-link.active(href="/") Home
             if userLoggedIn
+              li.nav-item
+                a.nav-link(href="/dashboard") Dashboard 
               li.nav-item
                 a.nav-link(href="/profile") Profile
               li.nav-item

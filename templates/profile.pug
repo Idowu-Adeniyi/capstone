@@ -156,6 +156,11 @@ html
         transition: color 0.3s ease-in-out; 
       }
 
+      .nav-link.active {
+        text-decoration: underline #007bff 5px; 
+        text-underline-offset: 5px;
+      }
+
   body
     nav.navbar.navbar-expand-lg.navbar-dark.bg-dark
       .container-fluid
@@ -168,6 +173,8 @@ html
           ul.navbar-nav.ms-auto
             li.nav-item
               a.nav-link(href="/") Home
+            li.nav-item
+              a.nav-link(href="/dashboard") Dashboard  
             li.nav-item
               a.nav-link.active(href="/profile") Profile
             li.nav-item
